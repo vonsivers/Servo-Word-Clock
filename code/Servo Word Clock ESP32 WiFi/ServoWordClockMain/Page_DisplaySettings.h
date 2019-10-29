@@ -14,7 +14,7 @@ const char PAGE_ColorSettings[] PROGMEM = R"=====(
   <option value="silent">silent</option>
 </select>
 </td></tr>
-<tr><td>Brightness</td><td><input type="range" min="1" max="255" value="200" id="brightness" name="brightness"></td></tr>
+<tr><td>Brightness</td><td><input type="range" min="1" max="200" value="200" id="brightness" name="brightness"></td></tr>
 <tr><td>Hour effect</td><td>
 <select id="heffect" name="heffect">
   <option value="effect1">typing</option>

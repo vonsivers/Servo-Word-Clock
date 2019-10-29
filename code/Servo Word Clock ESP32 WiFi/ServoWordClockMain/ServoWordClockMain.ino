@@ -41,6 +41,9 @@ void setup() {
 
   Serial.println("Booting");
 
+  // get random seed from unused pin
+  randomSeed(analogRead(2));
+
   //**** Network Config load
   EEPROM.begin(512); // define an EEPROM space of 512Bytes to store data
 
@@ -90,6 +93,7 @@ void setup() {
   pwm11.begin();
   pwm11.setPWMFreq(120); 
 
+  currentMode = config.clockmode;    // get current clock mode first: no resetting of servos if clockmode is silent
   initMatrix();
 
   delay(1000);
@@ -111,6 +115,7 @@ void loop() {
 	      getNTPtime();
 	      cNTP_Update =0;
 	      firstStart = false;
+        updateDisplay = true;
 	    }
 	    else if ( cNTP_Update > (config.Update_Time_Via_NTP_Every * 60) )
 	    {

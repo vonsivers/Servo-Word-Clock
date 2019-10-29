@@ -1,7 +1,7 @@
 #ifndef LEDMATRIX_FUNCTIONS_H
 #define LEDMATRIX_FUNCTIONS_H
 
-#define DATA_PIN    13
+#define DATA_PIN    15
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define NUM_LEDS    114
@@ -10,7 +10,7 @@ CRGB leds[NUM_LEDS];
 
 // min/max position of servos
 const uint16_t SERVOMIN = 440;
-const uint16_t SERVOMAX = 680;
+const uint16_t SERVOMAX = 760;
 
 // definition of words (row,column), rows and columns start counting from 0 in upper left corner
 //
@@ -61,6 +61,9 @@ uint8_t currentHue[11][11] = {0};  // current hue
 // delay (ms) between servo position update when moving slow/fast
 uint16_t DELAY_slow = 5;   
 uint16_t DELAY_fast = 1;   
+
+// current clockmode
+String currentMode = config.clockmode;
 
 
 // covert hex string to int
@@ -121,8 +124,8 @@ uint8_t hexToHue(String hex) {
 //
 void moveServo(int row, int column, unsigned int pos) {
 
-  // only move when clock mode set to "normal"
-  if(config.clockmode=="normal") {
+  // only move when current clock mode set to "normal"
+  if(currentMode=="normal") {
     // check if position is within limits
     if (pos<=SERVOMAX && pos>=SERVOMIN) {
 
@@ -155,6 +158,19 @@ void moveServo(int row, int column, unsigned int pos) {
 }
 
 
+// move all servos to front
+//
+void ServosToFront() {
+  for (int row=0; row<11; row++) {
+    for (int column=0; column<11; column++) {
+      if(currentPos[row][column]<SERVOMAX) {
+        moveServo(row,column,SERVOMAX);
+        delay(150);
+      }
+    }
+  }
+}
+
 
 // light up LED
 //
@@ -164,14 +180,19 @@ void lightLED(int row, int column, int hue) {
   // letters
   if(row<10) {
     i = 109-column*10-row;
+    leds[i] = CHSV( hue, 255, 255);
+    currentHue[row][column] = hue;
   }
   // dots
   else {
-    i = 113 - column;
+    if(column<4) {
+      i = 113 - column;
+      leds[i] = CHSV( hue, 255, 255);
+      currentHue[row][column] = hue;
+    }
   }
     
-  leds[i] = CHSV( hue, 255, 255);
-  currentHue[row][column] = hue;
+  
     
 }
 
@@ -182,7 +203,9 @@ void lightup(uint8_t Word[][2], int nLetters, String effect) {
   
   // each word gets different random color
   if(config.wcolormode=="random") {
-      hue_w = random(256);
+      do {    
+      hue_w = random(256); 
+    } while(abs(hue_w-hue_b)<10);   // ensure that word color is different enough from bkg color
   }
   
   if (effect=="effect1") {    // typing effect (letters appear from left to right)
@@ -192,8 +215,8 @@ void lightup(uint8_t Word[][2], int nLetters, String effect) {
           delay(DELAY_fast);
         }
       lightLED(Word[i][0],Word[i][1],hue_w);
+      usedLetters[Word[i][0]][Word[i][1]]=1;
       FastLED.show();
-      delay(1000);
     }
   }
   // words move slowly in, all letters simultaneously
@@ -205,6 +228,7 @@ void lightup(uint8_t Word[][2], int nLetters, String effect) {
       for (int i = 0; i < nLetters; i++) {
         moveServo(Word[i][0],Word[i][1],pos);
         lightLED(Word[i][0],Word[i][1],(int)hue);
+        usedLetters[Word[i][0]][Word[i][1]]=1;
       }
     hue += hueStep;
     FastLED.show();
@@ -223,36 +247,43 @@ void lightup(uint8_t Word[][2], int nLetters, String effect) {
 //
 void LettersToBack() {
 
-  for(int pos=SERVOMAX; pos>=SERVOMIN; pos--) {
+  for(int pos=SERVOMAX-1; pos>=SERVOMIN; pos--) {
     for (int row=0; row<11; ++row) {
       for (int column=0; column<11; ++column) {
+          uint8_t hue = currentHue[row][column];
+          double hueStep = (double)(hue_b - hue)/(double)(pos-SERVOMIN+1);
+          hue += hueStep;
+          lightLED(row,column,(int)hue);
           if (currentPos[row][column]>SERVOMIN) {
             moveServo(row,column,pos);
           }
-        lightLED(row,column,hue_b);
       }
     }
+    FastLED.show();
     delay(DELAY_slow);
   }
-  FastLED.show();
+  
 }
 
 
 // move all letters simultaneously to front, light all LEDs with word color
 void LettersToFront() {
-
-  for(int pos=SERVOMIN; pos>=SERVOMAX; pos++) {
+  
+  for(int pos=SERVOMIN+1; pos<=SERVOMAX; pos++) {
     for (int row=0; row<11; ++row) {
       for (int column=0; column<11; ++column) {
+          uint8_t hue = currentHue[row][column];
+          double hueStep = (double)(hue_w - hue)/(double)(SERVOMAX-pos+1);
+          hue += hueStep;
+          lightLED(row,column,(int)hue);
           if (currentPos[row][column]<SERVOMAX) {
             moveServo(row,column,pos);
-          }
-        lightLED(row,column,hue_w);
+          } 
       }
     }
+    FastLED.show();
     delay(DELAY_slow);
   }
-  FastLED.show();
 }
 
 
@@ -263,9 +294,9 @@ void LettersToRandom() {
   for (int row=0; row<11; ++row) {
     for (int column=0; column<11; ++column) {
       moveServo(row,column,random(SERVOMIN,SERVOMAX));
-      lightLED(row,column,random(0,256));
+      lightLED(row,column,random(256));
       FastLED.show();
-      delay(150);
+      delay(random(50,250));
     }
   }
 }
@@ -336,20 +367,22 @@ void updateMinutes(String effect) {
    hue_d = hexToHue(config.dcolor);
   }
   else if(config.dcolormode=="random") {
-   hue_d = random(256);
+    do {    
+      hue_d = random(256); 
+    } while(abs(hue_d-hue_b)<10);   // ensure that dot color is different enough from bkg color
   }
   
   int ndots = (DateTime.minute % 5);
 
   if(effect=="effect1") {
     for (int i=0; i<ndots; ++i) {
-      for (int pos=currentPos[11][i]; pos<=SERVOMAX; ++pos) {
-        moveServo(101,i,pos);
+      for (int pos=currentPos[10][i]; pos<=SERVOMAX; ++pos) {
+        moveServo(10,i,pos);
         delay(DELAY_fast);
       }
       lightLED(10,i,hue_d);
       FastLED.show();
-      delay(500);
+      usedLetters[10][i]=1;
     }
   }
   else if (effect=="effect2") {
@@ -359,6 +392,7 @@ void updateMinutes(String effect) {
       for (int i=0; i<ndots; ++i) {
         moveServo(10,i,pos);
         lightLED(10,i,(int)hue);
+        usedLetters[10][i]=1;
       }
       hue += hueStep;
       FastLED.show();
@@ -422,8 +456,18 @@ void updateTime() {
       hue_w = hexToHue(config.wcolor);
   }
   else {
-    hue_w = random(256);
+    do {    
+      hue_w = random(256); 
+    } while(abs(hue_w-hue_b)<10);   // ensure that word color is different enough from bkg color
   }
+
+  // move servos to front if mode was changed to silent
+  if(config.clockmode=="silent" && currentMode=="normal") {
+    ServosToFront();
+  }
+
+  // change current clock mode
+  currentMode = config.clockmode;
 
   // move all letters to front 
   if(effect=="effect3") {
@@ -438,10 +482,9 @@ void updateTime() {
     LettersToBack();
   }
   
-  
    // light up "IT IS" first
-    lightup(IT,sizeof(IT)/sizeof(IT[0]),effect);
-    lightup(IS,sizeof(IS)/sizeof(IS[0]),effect);
+  lightup(IT,sizeof(IT)/sizeof(IT[0]),effect);
+  lightup(IS,sizeof(IS)/sizeof(IS[0]),effect);
 
   // show minutes and hours
   switch (DateTime.minute / 5) {
@@ -522,21 +565,22 @@ void updateTime() {
 
             // for fade out effect move all background LEDs to back
             if(effect=="effect3") {
-              double hueStep = (double)(hue_b - hue_w)/(double)(SERVOMAX-SERVOMIN);    
-              double hue = (double)hue_w;
-              for(int pos=SERVOMAX; pos>=SERVOMIN; pos--) {
+              //double hueStep = (double)(hue_b - hue_w)/(double)(SERVOMAX-SERVOMIN);    
+              //double hue = (double)hue_w;
+              for(int pos=SERVOMAX-1; pos>=SERVOMIN; pos--) {
                 for(int row=0; row<11; row++) {
-                   for(int column=0; column<11; column++) {
+                   for(int column=0; column<11; column++) {    
                     // if LED is not used for words
                     if(usedLetters[row][column]==0) {
-                      if(config.clockmode=="normal") {
-                        moveServo(row,column,pos);
-                      }
+                      uint8_t hue = currentHue[row][column];
+                      double hueStep = (double)(hue_b - hue)/(double)(pos-SERVOMIN+1);
                       hue += hueStep;
-                      lightLED(row,column,(int)hue);
+                      moveServo(row,column,pos);
+                      lightLED(row,column,hue);
                     }
                   }
                 }
+                FastLED.show();
                 delay(DELAY_slow);  
               }
             }
@@ -550,29 +594,61 @@ void updateTime() {
                     unsigned int pos = currentPos[row][column];
                     uint8_t hue = currentHue[row][column];
                     // check if letter needs to be moved to front
-                    if(usedLetters[row][column]) {
-                      double hueStep = (double)(hue_w - hue)/(double)(SERVOMAX-pos);
-                      if(pos<SERVOMAX) {
-                        pos++;
-                        hue += hueStep;
-                        moveServo(row,column,pos);
-                        lightLED(row,column,hue);
+                    if(usedLetters[row][column]) {          
+                      // servos only move when clock mode set to normal
+                      if(currentMode == "normal") { 
+                        double hueStep = (double)(hue_w - hue)/(double)(SERVOMAX-pos);
+                        if(pos<SERVOMAX) {
+                          pos++;
+                          hue += hueStep;
+                          moveServo(row,column,pos);
+                          lightLED(row,column,hue);
+                        }
+                        else {
+                          lightLED(row,column,hue_w); // ensure correct color
+                          n++;    // letter in final position
+                        }
                       }
+                      // in silent mode just change hue to final value
                       else {
-                        n++;    // letter in final position
+                        if(hue!=hue_w) {
+                          hue++;
+                          //Serial.print("incrementing hue of word letter: "); Serial.println(hue);
+                          lightLED(row,column,hue);
+                        }
+                        else {
+                          n++;    // letter in final position
+                          //Serial.print("letters in final position: "); Serial.println(n);
+                        }
                       }
                     }
                     // letters which go to back
                     else {
-                      double hueStep = (double)(hue_b - hue)/(double)(pos-SERVOMIN);
-                      if(pos>SERVOMIN) {
-                        pos--;
-                        hue += hueStep;
-                        moveServo(row,column,pos);
-                        lightLED(row,column,hue);
+                      // servos only move when clock mode set to normal
+                      if(currentMode == "normal") {
+                        double hueStep = (double)(hue_b - hue)/(double)(pos-SERVOMIN);
+                        if(pos>SERVOMIN) {
+                          pos--;
+                          hue += hueStep;
+                          moveServo(row,column,pos);
+                          lightLED(row,column,hue);
+                        }
+                        else {
+                          lightLED(row,column,hue_b); // ensure correct color
+                          n++;    // letter in final position
+                        }
                       }
+                      // in silent mode just change hue to final value
                       else {
-                        n++;    // letter in final position
+                        if(hue!=hue_b) {
+                          hue++;
+                          //Serial.print("incrementing hue of bkg letter: "); Serial.println(hue);
+                          lightLED(row,column,hue);
+                        }
+                        else {
+                          n++;    // letter in final position
+                          //Serial.print("letters in final position: "); Serial.println(n);
+                        }
                       }
                     }
                   }
@@ -587,11 +663,12 @@ void updateTime() {
 // update background color in color cycle mode
 //
 void updateBkgColor() {
+  //Serial.println("updating bkg color");
   hue_b++;
   for (int row=0; row<11; ++row) {
     for (int column=0; column<11; ++column) {
-      // check if letter needs to be moved to front
-      if(usedLetters[row][column]) {
+      // check if letter is displaying time
+      if(!usedLetters[row][column]) {
         lightLED(row,column,hue_b);
       }
     }
@@ -641,6 +718,7 @@ void updateSeconds() {
   //delay(10);
 }
 */
+
 
 
 // initialize matrix (move all servos to back, turn off LEDs)
