@@ -21,7 +21,7 @@ void Gen_Time() {
 
       // color cycle LEDs
       if(config.bcolormode=="cycle") {
-        updateBkgColor();
+        EVERY_N_MILLISECONDS( 50 ) {updateBkgColor(); }
       }
       
   }

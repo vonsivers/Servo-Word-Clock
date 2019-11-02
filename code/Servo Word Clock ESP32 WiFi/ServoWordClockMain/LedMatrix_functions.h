@@ -9,8 +9,8 @@ CRGB leds[NUM_LEDS];
 #define FRAMES_PER_SECOND  50
 
 // min/max position of servos
-const uint16_t SERVOMIN = 440;
-const uint16_t SERVOMAX = 760;
+const uint16_t SERVOMIN = 480;
+const uint16_t SERVOMAX = 770;
 
 // definition of words (row,column), rows and columns start counting from 0 in upper left corner
 //
@@ -37,6 +37,25 @@ uint8_t TWELVE[][2] = { {8,5}, {8,6}, {8,7}, {8,8}, {8,9}, {8,10} };
 uint8_t TEN[][2] = { {9,0}, {9,1}, {9,2} };
 uint8_t OCLOCK[][2] = { {9,5}, {9,6}, {9,7}, {9,8}, {9,9}, {9,10} };
 
+// WiFi symbol
+//
+uint8_t wifiSym0[][2] = { {9,5} };
+uint8_t wifiSym1[][2] = { {8,3}, {7,4}, {7,5}, {7,6}, {8,7} };
+uint8_t wifiSym2[][2] = { {6,2}, {5,3}, {4,4}, {4,5}, {4,6}, {5,7}, {6,8} };
+uint8_t wifiSym3[][2] = { {4,1}, {3,2}, {2,3}, {2,4}, {2,5}, {2,6}, {2,7}, {3,8}, {4,9} }; 
+
+// clock symbol
+uint8_t clockSym[][2] = { {0,3}, {0,4}, {0,5}, {0,6}, {0,7}, 
+                          {1,2}, {1,8}, 
+                          {2,1}, {2,2}, {2,9}, 
+                          {3,0}, {3,3}, {3,10}, 
+                          {4,0}, {4,4}, {4,10}, 
+                          {5,0}, {5,5}, {5,6}, {5,7}, {5,8}, {5,9}, 
+                          {6,0}, {6,10},
+                          {7,1}, {7,9},
+                          {8,2}, {8,8},
+                          {9,3}, {9,4}, {9,5}, {9,6}, {9,7} };
+
 // setup servo drivers
 Adafruit_PWMServoDriver pwm1 = Adafruit_PWMServoDriver(&Wire, 0x40);
 Adafruit_PWMServoDriver pwm2 = Adafruit_PWMServoDriver(&Wire, 0x41);
@@ -60,10 +79,14 @@ uint8_t currentHue[11][11] = {0};  // current hue
 
 // delay (ms) between servo position update when moving slow/fast
 uint16_t DELAY_slow = 5;   
-uint16_t DELAY_fast = 1;   
+uint16_t DELAY_fast = 1;
 
 // current clockmode
 String currentMode = config.clockmode;
+
+// counter for no Wifi animation
+int wifiAnimation = 0;                   
+long wifiMillis = 0;
 
 
 // covert hex string to int
@@ -196,6 +219,17 @@ void lightLED(int row, int column, int hue) {
     
 }
 
+// show word on display
+//
+void lightupSym(uint8_t Sym[][2], int nLEDs, uint8_t hue) {
+
+  for (int i = 0; i < nLEDs; i++) {
+    lightLED(Sym[i][0],Sym[i][1],hue);
+  }
+  FastLED.show();
+  
+}
+
 
 // show word on display
 //
@@ -205,7 +239,7 @@ void lightup(uint8_t Word[][2], int nLetters, String effect) {
   if(config.wcolormode=="random") {
       do {    
       hue_w = random(256); 
-    } while(abs(hue_w-hue_b)<10);   // ensure that word color is different enough from bkg color
+    } while(abs(hue_w-hue_b)<20);   // ensure that word color is different enough from bkg color
   }
   
   if (effect=="effect1") {    // typing effect (letters appear from left to right)
@@ -369,7 +403,7 @@ void updateMinutes(String effect) {
   else if(config.dcolormode=="random") {
     do {    
       hue_d = random(256); 
-    } while(abs(hue_d-hue_b)<10);   // ensure that dot color is different enough from bkg color
+    } while(abs(hue_d-hue_b)<20);   // ensure that dot color is different enough from bkg color
   }
   
   int ndots = (DateTime.minute % 5);
@@ -378,7 +412,7 @@ void updateMinutes(String effect) {
     for (int i=0; i<ndots; ++i) {
       for (int pos=currentPos[10][i]; pos<=SERVOMAX; ++pos) {
         moveServo(10,i,pos);
-        delay(DELAY_fast);
+        delay(DELAY_slow);
       }
       lightLED(10,i,hue_d);
       FastLED.show();
@@ -411,6 +445,8 @@ void updateMinutes(String effect) {
 // shows time on clock
 //
 void updateTime() {
+
+  // clear no ntp symbol on first start
 
   // reset used letters variable
   for(int row=0; row<11; row++) {
@@ -458,7 +494,7 @@ void updateTime() {
   else {
     do {    
       hue_w = random(256); 
-    } while(abs(hue_w-hue_b)<10);   // ensure that word color is different enough from bkg color
+    } while(abs(hue_w-hue_b)<20);   // ensure that word color is different enough from bkg color
   }
 
   // move servos to front if mode was changed to silent
@@ -584,7 +620,7 @@ void updateTime() {
                 delay(DELAY_slow);  
               }
             }
-            // for random color effect simultanously move all letters to final position
+            // for color mix effect simultanously move all letters to final position
             else if(effect=="effect4") {
               int n = 0; // number of letters that reached final position
               while (n<114) {
@@ -675,19 +711,42 @@ void updateBkgColor() {
   }
   FastLED.show();  
   // insert a delay to keep the framerate modest
-  FastLED.delay(1000/FRAMES_PER_SECOND); 
+  //FastLED.delay(1000/FRAMES_PER_SECOND); 
 }
 
 
 // show "no wifi" animation
 //
 void LED_no_wifi() {
-  
+
+  uint8_t hue = 32;
+
+  if(millis()-wifiMillis>1000) {
+    // add another "wave" each second
+   switch(wifiAnimation) {
+    case 0: FastLED.clear(); lightupSym(wifiSym0,sizeof(wifiSym0)/sizeof(wifiSym0[0]),hue); break;
+    case 1: lightupSym(wifiSym1,sizeof(wifiSym1)/sizeof(wifiSym1[0]),hue); break;
+    case 2: lightupSym(wifiSym2,sizeof(wifiSym2)/sizeof(wifiSym2[0]),hue); break;
+    case 3: lightupSym(wifiSym3,sizeof(wifiSym3)/sizeof(wifiSym3[0]),hue); break;
+   }
+   if(wifiAnimation==3) {
+    wifiAnimation = 0;
+   }
+   else {
+    wifiAnimation++;
+   }
+   wifiMillis = millis();
+  }
+
+     
 }
 
 // show "no NTP" animation
 //
 void LED_no_ntp() {
+
+  uint8_t hue = 160;
+  lightupSym(clockSym,sizeof(clockSym)/sizeof(clockSym[0]),hue);
   
 }
 

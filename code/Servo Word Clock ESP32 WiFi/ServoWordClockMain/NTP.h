@@ -169,10 +169,12 @@ void ISRsecondTick()
   DateTime = ConvertUnixTimeStamp(absoluteActualTime);  //  convert to DateTime format
   actualTime = 3600 * DateTime.hour + 60 * DateTime.minute + DateTime.second;
   date_ok = true;
+  /*
   if (millis() - customWatchdog > 90000){
     Serial.println("CustomWatchdog bites. Bye");
     ESP.restart();
   }
+  */
 }
 
 

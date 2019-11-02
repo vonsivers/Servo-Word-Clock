@@ -1,4 +1,4 @@
-#define FASTLED_INTERRUPT_RETRY_COUNT 0
+#define FASTLED_INTERRUPT_RETRY_COUNT 1
 #include <FastLED.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
@@ -37,6 +37,12 @@
 //}
 
 void setup() {
+
+  // clear LEDs directly after start
+  FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.clear();
+  FastLED.show();
+  
   Serial.begin(115200);
 
   Serial.println("Booting");
@@ -57,6 +63,7 @@ void setup() {
     startSTA();
   }
   else {
+    DefaultConfig();
     startAP();
   }
 
@@ -64,11 +71,6 @@ void setup() {
   startServer();
 
   printConfig();
-
-  // start internal time update ISR
-  tkSecond.attach(1, ISRsecondTick);
-
-  FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
 
   pwm1.begin();
   pwm1.setPWMFreq(120);  
@@ -96,9 +98,10 @@ void setup() {
   currentMode = config.clockmode;    // get current clock mode first: no resetting of servos if clockmode is silent
   initMatrix();
 
-  delay(1000);
-
   lastmin = DateTime.minute; // initialize last update of display
+ 
+  // start internal time update ISR
+  tkSecond.attach(1, ISRsecondTick);
 
   Serial.println("Setup done");
 }
@@ -116,6 +119,7 @@ void loop() {
 	      cNTP_Update =0;
 	      firstStart = false;
         updateDisplay = true;
+        FastLED.clear();
 	    }
 	    else if ( cNTP_Update > (config.Update_Time_Via_NTP_Every * 60) )
 	    {
@@ -124,7 +128,7 @@ void loop() {
 	    }
 	  }
 	   //  feed the DOG :)
-	   customWatchdog = millis();
+	   //customWatchdog = millis();
 
 	//============================
 	  if  (WIFI_connected != WL_CONNECTED and manual_time_set == false) {

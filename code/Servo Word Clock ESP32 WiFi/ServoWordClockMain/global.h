@@ -121,7 +121,32 @@ String  ReadStringFromEEPROM(int beginaddress){
 }
 
 
-
+void DefaultConfig() {
+   uint64_t macAddress = ESP.getEfuseMac();
+    uint64_t macAddressTrunc = macAddress << 40;
+    chipID = macAddressTrunc >> 40;
+    config.ssid = "ServoWordClock-" + String(chipID,HEX);       // SSID of access point
+    config.password = "" ;   // password of access point
+    config.dhcp = true;
+    config.IP[0] = 192; config.IP[1] = 168; config.IP[2] = 1; config.IP[3] = 100;                       // not used                     
+    config.Netmask[0] = 255; config.Netmask[1] = 255; config.Netmask[2] = 255; config.Netmask[3] = 0;   // not used   
+    config.Gateway[0] = 192; config.Gateway[1] = 168; config.Gateway[2] = 1; config.Gateway[3] = 254;   // not used
+    config.ntpServerName = "0.pool.ntp.org"; 
+    config.Update_Time_Via_NTP_Every =  3;
+    config.timeZone = 10;
+    config.isDayLightSaving = false;
+    config.clockmode = "normal";
+    config.brightness = 150;
+    config.heffect = "effect1";
+    config.meffect = "effect1";
+    config.wcolormode = "random";
+    config.wcolor = "#ff0000";
+    config.bcolormode = "random";
+    config.bcolor = "#ff0000";
+    config.dcolormode = "random";
+    config.dcolor = "#ff0000";
+    config.DeviceName = "ServoWordClock";
+}
 
 void WriteConfig(){
 
