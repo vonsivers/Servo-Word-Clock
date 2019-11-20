@@ -75,6 +75,37 @@ void startSTA() {
   
 }
 
+// reconnect to WifI if connection was lost
+//
+void reconnectSTA() {
+  int wifi_retry = 0;
+  while(WiFi.status() != WL_CONNECTED && wifi_retry < 5 ) {
+      wifi_retry++;
+      Serial.println("WiFi not connected. Try to reconnect");
+      WiFi.disconnect();
+      WiFi.mode(WIFI_OFF);
+      WiFi.mode(WIFI_STA);
+      WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE);
+      WiFi.setHostname("ServoWordClock");                   // allow access via http://servowordclock from OUTSIDE network
+      WiFi.begin(config.ssid.c_str(), config.password.c_str());
+      delay(500);
+  }
+  if(wifi_retry >= 5) {
+      Serial.println("\nReboot");
+      ESP.restart();
+  }
+  Serial.print("Wifi ip:");Serial.println(WiFi.localIP());
+
+      // allow access via http://servowordclock.local from INSIDE network
+      if (!MDNS.begin("ServoWordClock")) {
+        Serial.println("Error setting up MDNS responder!");
+        while(1) {
+            delay(1000);
+        }
+    }
+    Serial.println("mDNS responder started");
+}
+
 // start webserver
 //
 void startServer() {
@@ -94,6 +125,7 @@ void startServer() {
         server.on ( "/ntp.html", send_NTP_configuration_html  );
         server.on ( "/time.html", send_Time_Set_html );
         server.on ( "/display.html", send_display_settings_html  );
+        server.on ( "/nightmode.html", send_night_mode_html  );
         server.on ( "/style.css", [](AsyncWebServerRequest *request) {
           Serial.println("style.css");
           //server.send_P ( 200, "text/plain", PAGE_Style_css );
@@ -109,6 +141,7 @@ void startServer() {
         server.on ( "/admin/ntpvalues", send_NTP_configuration_values_html );
         server.on ( "/admin/timevalues", send_Time_Set_values_html );
         server.on ( "/admin/displayvalues", send_display_settings_values_html );
+        server.on ( "/admin/nightmode", send_night_mode_values_html );
 
     server.onNotFound ( [](AsyncWebServerRequest *request) {
       Serial.println("Page Not Found");

@@ -13,6 +13,7 @@ const char PAGE_AdminMainPage[] PROGMEM = R"=====(
 <a href="ntp.html"   style="width:250px"  class="btn btn--m btn--blue" >Timezone Configuration</a><br>
 <a href="time.html"   style="width:250px"  class="btn btn--m btn--blue" >Manual Time Setting</a><br>
 <a href="display.html"   style="width:250px"  class="btn btn--m btn--blue" >Display Settings</a><br>
+<a href="nightmode.html"   style="width:250px"  class="btn btn--m btn--blue" >Night Mode Settings</a><br>
 
 <script>
 window.onload = function ()

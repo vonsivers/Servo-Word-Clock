@@ -57,6 +57,7 @@ void getNTPtime()
     int cb = UDPNTPClient.parsePacket();
     if (cb == 0) {
       Serial.println("No NTP packet yet");
+      config.Update_Time_Via_NTP_Every = 1;
     }
     else
     {

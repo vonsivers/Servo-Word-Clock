@@ -53,6 +53,15 @@ struct strConfig {
   String clockmode;                     // up to 32 Byte - EEPROM 385
   String dcolormode;                    // up to 32 Byte - EEPROM 417
   String dcolor;                        // up to 32 Byte - EEPROM 449
+  String nightmode;                     // up to 32 Byte - EEPROM 481
+  uint8_t wd_hour_start;                // 1 Byte - EEPROM 513
+  uint8_t wd_minute_start;              // 1 Byte - EEPROM 514
+  uint8_t wd_hour_end;                  // 1 Byte - EEPROM 515
+  uint8_t wd_minute_end;                // 1 Byte - EEPROM 516
+  uint8_t we_hour_start;                // 1 Byte - EEPROM 517
+  uint8_t we_minute_start;              // 1 Byte - EEPROM 518
+  uint8_t we_hour_end;                  // 1 Byte - EEPROM 519
+  uint8_t we_minute_end;                // 1 Byte - EEPROM 520
 } config;
 
 
@@ -131,7 +140,7 @@ void DefaultConfig() {
     config.IP[0] = 192; config.IP[1] = 168; config.IP[2] = 1; config.IP[3] = 100;                       // not used                     
     config.Netmask[0] = 255; config.Netmask[1] = 255; config.Netmask[2] = 255; config.Netmask[3] = 0;   // not used   
     config.Gateway[0] = 192; config.Gateway[1] = 168; config.Gateway[2] = 1; config.Gateway[3] = 254;   // not used
-    config.ntpServerName = "0.pool.ntp.org"; 
+    config.ntpServerName = "pool.ntp.org"; 
     config.Update_Time_Via_NTP_Every =  3;
     config.timeZone = 10;
     config.isDayLightSaving = false;
@@ -146,6 +155,15 @@ void DefaultConfig() {
     config.dcolormode = "random";
     config.dcolor = "#ff0000";
     config.DeviceName = "ServoWordClock";
+    config.nightmode = "silent";
+    config.wd_hour_start = 0;
+    config.wd_minute_start = 0;
+    config.wd_hour_end = 0;
+    config.wd_minute_end = 0;
+    config.we_hour_start = 0;
+    config.we_minute_start = 0;
+    config.we_hour_end = 0;
+    config.we_minute_end = 0;
 }
 
 void WriteConfig(){
@@ -195,11 +213,21 @@ void WriteConfig(){
   WriteStringToEEPROM(417, config.dcolormode);
   WriteStringToEEPROM(449, config.dcolor);
 
+  WriteStringToEEPROM(481, config.nightmode);
+  EEPROM.write(513, config.wd_hour_start);
+  EEPROM.write(514, config.wd_minute_start);
+  EEPROM.write(515, config.wd_hour_end);
+  EEPROM.write(516, config.wd_minute_end);
+  EEPROM.write(517, config.we_hour_start);
+  EEPROM.write(518, config.we_minute_start);
+  EEPROM.write(519, config.we_hour_end);
+  EEPROM.write(520, config.we_minute_end);
+
   EEPROM.commit();
 }
 
 void ClearConfig() {
-  for (int i = 0 ; i < 512 ; i++) {
+  for (int i = 0 ; i < 520 ; i++) {
     EEPROM.write(i, 0);
   }
 }
@@ -239,6 +267,15 @@ boolean ReadConfig(){
     config.clockmode = ReadStringFromEEPROM(385);
     config.dcolormode = ReadStringFromEEPROM(417);
     config.dcolor = ReadStringFromEEPROM(449);
+    config.nightmode = ReadStringFromEEPROM(481);
+    config.wd_hour_start = EEPROM.read(513);
+    config.wd_minute_start = EEPROM.read(514);
+    config.wd_hour_end = EEPROM.read(515);
+    config.wd_minute_end = EEPROM.read(516);
+    config.we_hour_start = EEPROM.read(517);
+    config.we_minute_start = EEPROM.read(518);
+    config.we_hour_end = EEPROM.read(519);
+    config.we_minute_end = EEPROM.read(520);
 
     return true;
 
@@ -259,7 +296,7 @@ void printConfig(){
   Serial.printf("DHCP:%d\n", config.dhcp);
   Serial.printf("DayLight:%d\n", config.isDayLightSaving);
 
-  Serial.printf("NTP update every %ld sec\n", config.Update_Time_Via_NTP_Every); // 4 Byte
+  Serial.printf("NTP update every %ld min\n", config.Update_Time_Via_NTP_Every); // 4 Byte
   Serial.printf("Timezone %ld\n", config.timeZone); // 4 Byte
 
   Serial.printf("IP:%d.%d.%d.%d\n", config.IP[0],config.IP[1],config.IP[2],config.IP[3]);
@@ -283,6 +320,16 @@ void printConfig(){
   Serial.printf("Minute Effect:%s\n", config.meffect.c_str());
   Serial.printf("Hour Effect:%s\n", config.heffect.c_str());
   Serial.printf("Clock Mode:%s\n", config.clockmode.c_str());
+
+  Serial.printf("Night Mode:%s\n", config.nightmode.c_str());
+  Serial.printf("weekdays hour start: %d\n", config.wd_hour_start);
+  Serial.printf("weekdays minute start: %d\n", config.wd_minute_start);
+  Serial.printf("weekdays hour end: %d\n", config.wd_hour_end);
+  Serial.printf("weekdays minute end: %d\n", config.wd_minute_end);
+  Serial.printf("weekend hour start: %d\n", config.we_hour_start);
+  Serial.printf("weekend minute start: %d\n", config.we_minute_start);
+  Serial.printf("weekend hour end: %d\n", config.we_hour_end);
+  Serial.printf("weekend minute end: %d\n", config.we_minute_end);
 
   Serial.println("------------------");
 

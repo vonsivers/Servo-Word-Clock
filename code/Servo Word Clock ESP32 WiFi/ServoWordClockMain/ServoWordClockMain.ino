@@ -29,6 +29,7 @@
 #include "Page_NetworkConfiguration.h"
 #include "Page_SetTime.h"
 #include "Page_DisplaySettings.h"
+#include "Page_NightMode.h"
 
 #include "WiFi_functions.h"
 
@@ -51,7 +52,7 @@ void setup() {
   randomSeed(analogRead(2));
 
   //**** Network Config load
-  EEPROM.begin(512); // define an EEPROM space of 512Bytes to store data
+  EEPROM.begin(520); // define an EEPROM space of 520 Bytes to store data
 
   // just for testing clear EEPROM before start -> TO BE REMOVED!
   //ClearConfig();
@@ -119,7 +120,7 @@ void loop() {
 	      cNTP_Update =0;
 	      firstStart = false;
         updateDisplay = true;
-        FastLED.clear();
+        //FastLED.clear();
 	    }
 	    else if ( cNTP_Update > (config.Update_Time_Via_NTP_Every * 60) )
 	    {
@@ -141,6 +142,11 @@ void loop() {
 	  }
 	  else if (ntp_response_ok == true or manual_time_set == true){
 		  Gen_Time();
+      // if wifi connection got lost attempt reconnect
+      if ( ntp_response_ok == true and WiFi.status() != WL_CONNECTED) {
+        reconnectSTA();
+        startServer();
+      }
 	  }
 	  
 }

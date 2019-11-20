@@ -50,11 +50,32 @@ uint8_t clockSym[][2] = { {0,3}, {0,4}, {0,5}, {0,6}, {0,7},
                           {2,1}, {2,2}, {2,9}, 
                           {3,0}, {3,3}, {3,10}, 
                           {4,0}, {4,4}, {4,10}, 
-                          {5,0}, {5,5}, {5,6}, {5,7}, {5,8}, {5,9}, 
+                          {5,0}, {5,5}, {5,6}, {5,7}, {5,8}, {5,10}, 
                           {6,0}, {6,10},
                           {7,1}, {7,9},
                           {8,2}, {8,8},
                           {9,3}, {9,4}, {9,5}, {9,6}, {9,7} };
+
+// clock circle + fixed arm
+uint8_t clockCirc[][2] = { {0,3}, {0,4}, {0,5}, {0,6}, {0,7}, 
+                          {1,2}, {1,8}, 
+                          {2,1}, {2,9}, 
+                          {3,0}, {3,10}, 
+                          {4,0}, {4,10}, 
+                          {5,0}, {5,5}, {5,6}, {5,7}, {5,8}, {5,10}, 
+                          {6,0}, {6,10},
+                          {7,1}, {7,9},
+                          {8,2}, {8,8},
+                          {9,3}, {9,4}, {9,5}, {9,6}, {9,7} };
+
+// variable clock arm
+uint8_t clockArm0[][2] = { {2,2}, {3,3}, {4,4} };
+uint8_t clockArm1[][2] = { {1,5}, {2,5}, {3,5}, {4,5} };
+uint8_t clockArm2[][2] = { {2,8}, {3,7}, {4,6} };
+uint8_t clockArm3[][2] = { {5,9} };
+uint8_t clockArm4[][2] = { {6,6}, {7,7} };
+uint8_t clockArm5[][2] = { {6,5}, {7,5}, {8,5} };
+uint8_t clockArm6[][2] = { {6,4}, {7,3} };
 
 // setup servo drivers
 Adafruit_PWMServoDriver pwm1 = Adafruit_PWMServoDriver(&Wire, 0x40);
@@ -87,6 +108,10 @@ String currentMode = config.clockmode;
 // counter for no Wifi animation
 int wifiAnimation = 0;                   
 long wifiMillis = 0;
+
+// counter for fade in/out
+uint8_t fade_counter = 0;
+int fade_increment = 1;
 
 
 // covert hex string to int
@@ -204,27 +229,56 @@ void lightLED(int row, int column, int hue) {
   if(row<10) {
     i = 109-column*10-row;
     leds[i] = CHSV( hue, 255, 255);
-    currentHue[row][column] = hue;
   }
   // dots
   else {
     if(column<4) {
       i = 113 - column;
       leds[i] = CHSV( hue, 255, 255);
-      currentHue[row][column] = hue;
     }
   }
     
-  
+ currentHue[row][column] = hue; 
     
 }
 
-// show word on display
+void lightLEDBrightness(int row, int column, uint8_t hue, uint8_t brightness) {
+
+  int i;
+  // letters
+  if(row<10) {
+    i = 109-column*10-row;
+    leds[i] = CHSV( hue, 255, brightness);
+  }
+  // dots
+  else {
+    if(column<4) {
+      i = 113 - column;
+      leds[i] = CHSV( hue, 255, brightness);
+    }
+  }
+    
+ currentHue[row][column] = hue; 
+    
+}
+
+// show symbol on display
 //
 void lightupSym(uint8_t Sym[][2], int nLEDs, uint8_t hue) {
 
   for (int i = 0; i < nLEDs; i++) {
     lightLED(Sym[i][0],Sym[i][1],hue);
+  }
+  FastLED.show();
+  
+}
+
+// show symbol on display
+//
+void lightupSymBrightness(uint8_t Sym[][2], int nLEDs, uint8_t hue, uint8_t brightness) {
+
+  for (int i = 0; i < nLEDs; i++) {
+    lightLEDBrightness(Sym[i][0],Sym[i][1],hue,brightness);
   }
   FastLED.show();
   
@@ -239,7 +293,7 @@ void lightup(uint8_t Word[][2], int nLetters, String effect) {
   if(config.wcolormode=="random") {
       do {    
       hue_w = random(256); 
-    } while(abs(hue_w-hue_b)<20);   // ensure that word color is different enough from bkg color
+    } while(abs(hue_w-hue_b)<32 && (abs(hue_w-hue_b)>224));   // ensure that word color is different enough from bkg color
   }
   
   if (effect=="effect1") {    // typing effect (letters appear from left to right)
@@ -403,7 +457,7 @@ void updateMinutes(String effect) {
   else if(config.dcolormode=="random") {
     do {    
       hue_d = random(256); 
-    } while(abs(hue_d-hue_b)<20);   // ensure that dot color is different enough from bkg color
+    } while(abs(hue_d-hue_b)<32 && (abs(hue_d-hue_b)>224));   // ensure that dot color is different enough from bkg color
   }
   
   int ndots = (DateTime.minute % 5);
@@ -494,7 +548,7 @@ void updateTime() {
   else {
     do {    
       hue_w = random(256); 
-    } while(abs(hue_w-hue_b)<20);   // ensure that word color is different enough from bkg color
+    } while(abs(hue_w-hue_b)<32 && (abs(hue_w-hue_b)>224));   // ensure that word color is different enough from bkg color
   }
 
   // move servos to front if mode was changed to silent
@@ -623,7 +677,7 @@ void updateTime() {
             // for color mix effect simultanously move all letters to final position
             else if(effect=="effect4") {
               int n = 0; // number of letters that reached final position
-              while (n<114) {
+              while (n<121) {
                 n = 0;
                 for (int row=0; row<11; ++row) {
                   for (int column=0; column<11; ++column) {
@@ -653,6 +707,7 @@ void updateTime() {
                           lightLED(row,column,hue);
                         }
                         else {
+                          lightLED(row,column,hue_w); // ensure correct color
                           n++;    // letter in final position
                           //Serial.print("letters in final position: "); Serial.println(n);
                         }
@@ -682,6 +737,7 @@ void updateTime() {
                           lightLED(row,column,hue);
                         }
                         else {
+                          lightLED(row,column,hue_b); // ensure correct color
                           n++;    // letter in final position
                           //Serial.print("letters in final position: "); Serial.println(n);
                         }
@@ -745,10 +801,68 @@ void LED_no_wifi() {
 //
 void LED_no_ntp() {
 
-  uint8_t hue = 160;
-  lightupSym(clockSym,sizeof(clockSym)/sizeof(clockSym[0]),hue);
-  
+  uint8_t hue = 96;
+
+  FastLED.clear();
+  lightupSymBrightness(clockSym,sizeof(clockSym)/sizeof(clockSym[0]),hue,fade_counter);
+
+  fade_counter += fade_increment;
+
+            if(fade_counter==255) {
+              fade_increment = -1;   
+            }
+            else if(fade_counter==0) {
+              fade_increment = 1;
+            }
+            FastLED.delay(1);
+
+  /*
+if(millis()-ntpMillis>1000) {
+  FastLED.clear();
+    // change arm every second
+   switch(ntpAnimation) {
+    case 0: 
+      lightupSym(clockCirc,sizeof(clockCirc)/sizeof(clockCirc[0]),hue); 
+      lightupSym(clockArm0,sizeof(clockArm0)/sizeof(clockArm0[0]),hue); 
+      break;
+    case 1: 
+      lightupSym(clockCirc,sizeof(clockCirc)/sizeof(clockCirc[0]),hue); 
+      lightupSym(clockArm1,sizeof(clockArm1)/sizeof(clockArm1[0]),hue); 
+      break;
+    case 2: 
+      lightupSym(clockCirc,sizeof(clockCirc)/sizeof(clockCirc[0]),hue); 
+      lightupSym(clockArm2,sizeof(clockArm2)/sizeof(clockArm2[0]),hue); 
+      break;
+    case 3: 
+      lightupSym(clockCirc,sizeof(clockCirc)/sizeof(clockCirc[0]),hue); 
+      lightupSym(clockArm3,sizeof(clockArm3)/sizeof(clockArm3[0]),hue); 
+      break;
+    case 4: 
+      lightupSym(clockCirc,sizeof(clockCirc)/sizeof(clockCirc[0]),hue); 
+      lightupSym(clockArm4,sizeof(clockArm4)/sizeof(clockArm4[0]),hue); 
+      break;
+    case 5: 
+      lightupSym(clockCirc,sizeof(clockCirc)/sizeof(clockCirc[0]),hue); 
+      lightupSym(clockArm5,sizeof(clockArm5)/sizeof(clockArm5[0]),hue); 
+      break;
+    case 6: 
+      lightupSym(clockCirc,sizeof(clockCirc)/sizeof(clockCirc[0]),hue); 
+      lightupSym(clockArm3,sizeof(clockArm6)/sizeof(clockArm6[0]),hue); 
+      break;
+   }
+   if(ntpAnimation==6) {
+    ntpAnimation = 0;
+   }
+   else {
+    ntpAnimation++;
+   }
+   ntpMillis = millis();
+   FastLED.clear();
+  }  
+  */
 }
+
+
 
 
 // update dot showing seconds
