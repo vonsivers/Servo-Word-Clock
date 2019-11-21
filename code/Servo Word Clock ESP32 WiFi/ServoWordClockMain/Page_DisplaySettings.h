@@ -8,13 +8,7 @@ const char PAGE_ColorSettings[] PROGMEM = R"=====(
 <hr>
 <form action="" method="get">
 <table border="0"  cellspacing="0" cellpadding="3" >
-<tr><td>Clock mode</td><td>
-<select  id="cmode" name="cmode">
-  <option value="normal">normal</option>
-  <option value="silent">silent</option>
-</select>
-</td></tr>
-<tr><td>Brightness</td><td><input type="range" min="1" max="200" value="200" id="brightness" name="brightness"></td></tr>
+<tr><td>Brightness</td><td><input type="range" min="1" max="255" value="255" id="brightness" name="brightness"></td></tr>
 <tr><td>Hour effect</td><td>
 <select id="heffect" name="heffect">
   <option value="effect1">typing</option>
@@ -85,19 +79,17 @@ void send_display_settings_html(AsyncWebServerRequest *request)
 	  {
 	    //for ( uint8_t i = 0; i < request->args(); i++ ) {
       for ( uint8_t i = 0; i <request->args(); i++ ) {
-	      if (request->argName(i) == "cmode") config.clockmode = request->arg(i);
 	      if (request->argName(i) == "brightness") config.brightness =  request->arg(i).toInt();
 	      if (request->argName(i) == "heffect") config.heffect =  request->arg(i);
         if (request->argName(i) == "meffect") config.meffect =  request->arg(i);
         if (request->argName(i) == "dcolormode") config.dcolormode =  request->arg(i);
-        if (request->argName(i) == "dcolor") config.dcolor =  request->arg(i);
+        if (request->argName(i) == "dcolor") config.dcolor = request->arg(i);
         if (request->argName(i) == "wcolormode") config.wcolormode =  request->arg(i);
-        if (request->argName(i) == "wcolor") config.wcolor =  request->arg(i);
+        if (request->argName(i) == "wcolor") config.wcolor = request->arg(i);
         if (request->argName(i) == "bcolormode") config.bcolormode =  request->arg(i);
-        if (request->argName(i) == "bcolor") config.bcolor =  request->arg(i);
+        if (request->argName(i) == "bcolor") config.bcolor = request->arg(i);
 	    }
 
-	    Serial.println(config.clockmode);
       Serial.println(config.brightness);
       Serial.println(config.heffect);
       Serial.println(config.meffect);
@@ -121,7 +113,6 @@ void send_display_settings_values_html(AsyncWebServerRequest *request)
 {
 
   String values ="";
-  values += "cmode|" + (String) config.clockmode + "|input\n";
   values += "brightness|" +  (String) config.brightness + "|input\n"; //
   values += "heffect|" +  (String) config.heffect + "|input\n";
   values += "meffect|" +  (String) config.meffect + "|input\n";

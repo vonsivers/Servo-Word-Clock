@@ -167,6 +167,67 @@ uint8_t hexToHue(String hex) {
   
 }
 
+// initialize servos
+//
+void initServos() {
+  pwm1.begin();
+  pwm1.setPWMFreq(120);  
+  pwm2.begin();
+  pwm2.setPWMFreq(120);  
+  pwm3.begin();
+  pwm3.setPWMFreq(120);  
+  pwm4.begin();
+  pwm4.setPWMFreq(120);  
+  pwm5.begin();
+  pwm5.setPWMFreq(120);  
+  pwm6.begin();
+  pwm6.setPWMFreq(120);  
+  pwm7.begin();
+  pwm7.setPWMFreq(120);  
+  pwm8.begin();
+  pwm8.setPWMFreq(120);
+  pwm9.begin();
+  pwm9.setPWMFreq(120);
+  pwm10.begin();
+  pwm10.setPWMFreq(120);
+  pwm11.begin();
+  pwm11.setPWMFreq(120);
+}
+
+
+// put servos to sleep
+//
+void sleepServos() {
+  Serial.println("put servos to sleep");
+  pwm1.sleep();
+  pwm2.sleep();
+  pwm3.sleep();
+  pwm4.sleep();
+  pwm5.sleep();
+  pwm6.sleep();
+  pwm7.sleep();
+  pwm8.sleep();
+  pwm9.sleep();
+  pwm10.sleep();
+  pwm11.sleep();
+}
+
+// put servos to sleep
+//
+void wakeupServos() {
+  Serial.println("wake up servos");
+  pwm1.wakeup();
+  pwm2.wakeup();
+  pwm3.wakeup();
+  pwm4.wakeup();
+  pwm5.wakeup();
+  pwm6.wakeup();
+  pwm7.wakeup();
+  pwm8.wakeup();
+  pwm9.wakeup();
+  pwm10.wakeup();
+  pwm11.wakeup();
+}
 
 // move servo to position
 //
@@ -205,6 +266,19 @@ void moveServo(int row, int column, unsigned int pos) {
   }
 }
 
+// initialize matrix (move all servos to back, turn off LEDs)
+//
+void initMatrix() {
+  Serial.println("resetting servos");
+  FastLED.clear ();
+  FastLED.show();
+  for (int row=0; row<11; row++) {
+    for (int column=0; column<11; column++) {
+      moveServo(row,column,SERVOMIN);
+      delay(150);
+    }
+  }
+}
 
 // move all servos to front
 //
@@ -224,6 +298,9 @@ void ServosToFront() {
 //
 void lightLED(int row, int column, int hue) {
 
+  // only light LEDs if clock is not set to off
+  if(currentMode!="off") {
+
   int i;
   // letters
   if(row<10) {
@@ -238,7 +315,8 @@ void lightLED(int row, int column, int hue) {
     }
   }
     
- currentHue[row][column] = hue; 
+  currentHue[row][column] = hue;
+  } 
     
 }
 
@@ -451,6 +529,8 @@ void setHours(byte c_hour, String effect) {
 //
 void updateMinutes(String effect) {
   
+  Serial.println("updating dots");
+  
   if(config.dcolormode=="fixed") {
    hue_d = hexToHue(config.dcolor);
   }
@@ -500,8 +580,7 @@ void updateMinutes(String effect) {
 //
 void updateTime() {
 
-  // clear no ntp symbol on first start
-
+  Serial.println("updating words");
   // reset used letters variable
   for(int row=0; row<11; row++) {
     for(int column=0; column<11; column++) {
@@ -552,8 +631,23 @@ void updateTime() {
   }
 
   // move servos to front if mode was changed to silent
-  if(config.clockmode=="silent" && currentMode=="normal") {
+  if(config.clockmode=="silent" && currentMode!="silent") {
+    Serial.println("clock mode switched to silent");
     ServosToFront();
+    delay(500);
+    sleepServos();
+  }
+  // move servos to back and switch off LEDs if mode was changed to off
+  else if(config.clockmode=="off" && currentMode!="off") {
+    Serial.println("clock mode switched to off");
+    initMatrix();
+    delay(500);
+    sleepServos();
+  }
+  // initialize servos if mode changed to normal
+  else if(config.clockmode=="normal" && currentMode!="normal") {
+    Serial.println("clock mode switched to normal");
+    wakeupServos();
   }
 
   // change current clock mode
@@ -802,11 +896,9 @@ void LED_no_wifi() {
 void LED_no_ntp() {
 
   uint8_t hue = 96;
-
   FastLED.clear();
   lightupSymBrightness(clockSym,sizeof(clockSym)/sizeof(clockSym[0]),hue,fade_counter);
-
-  fade_counter += fade_increment;
+    fade_counter += fade_increment;
 
             if(fade_counter==255) {
               fade_increment = -1;   
@@ -894,20 +986,6 @@ void updateSeconds() {
 
 
 
-// initialize matrix (move all servos to back, turn off LEDs)
-//
-void initMatrix() {
-  FastLED.clear ();
-  FastLED.show();
-  for (int row=0; row<11; row++) {
-    for (int column=0; column<11; column++) {
-      moveServo(row,column,SERVOMIN);
-      delay(150);
-    }
-  }
-}
-
-
 // test all LEDs
 //
 void testLEDs() {
@@ -955,6 +1033,7 @@ void testServos() {
   }
   
 }
+
 
 
 

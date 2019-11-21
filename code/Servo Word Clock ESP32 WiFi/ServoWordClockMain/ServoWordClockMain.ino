@@ -52,7 +52,7 @@ void setup() {
   randomSeed(analogRead(2));
 
   //**** Network Config load
-  EEPROM.begin(520); // define an EEPROM space of 520 Bytes to store data
+  EEPROM.begin(512); // define an EEPROM space of 512 Bytes to store data
 
   // just for testing clear EEPROM before start -> TO BE REMOVED!
   //ClearConfig();
@@ -73,28 +73,7 @@ void setup() {
 
   printConfig();
 
-  pwm1.begin();
-  pwm1.setPWMFreq(120);  
-  pwm2.begin();
-  pwm2.setPWMFreq(120);  
-  pwm3.begin();
-  pwm3.setPWMFreq(120);  
-  pwm4.begin();
-  pwm4.setPWMFreq(120);  
-  pwm5.begin();
-  pwm5.setPWMFreq(120);  
-  pwm6.begin();
-  pwm6.setPWMFreq(120);  
-  pwm7.begin();
-  pwm7.setPWMFreq(120);  
-  pwm8.begin();
-  pwm8.setPWMFreq(120);
-  pwm9.begin();
-  pwm9.setPWMFreq(120);
-  pwm10.begin();
-  pwm10.setPWMFreq(120);
-  pwm11.begin();
-  pwm11.setPWMFreq(120); 
+  initServos(); 
 
   currentMode = config.clockmode;    // get current clock mode first: no resetting of servos if clockmode is silent
   initMatrix();

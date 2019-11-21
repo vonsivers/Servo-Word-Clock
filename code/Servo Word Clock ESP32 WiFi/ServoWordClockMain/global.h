@@ -42,26 +42,25 @@ struct strConfig {
   String ssid;                          // up to 32 Byte - EEPROM 64
   String password;                      // up to 32 Byte - EEPROM 96
   String ntpServerName;                 // up to 32 Byte - EEPROM 128
-  String DeviceName;                    // up to 32 Byte - EEPROM 160
-  String wcolor;                        // up to 32 Byte - EEPROM 192
-  String bcolor;                        // up to 32 Byte - EEPROM 224
-  String wcolormode;                    // up to 32 Byte - EEPROM 256
-  String bcolormode;                    // up to 32 Byte - EEPROM 288
-  uint8_t brightness;                   // 1 Byte - EEPROM 320
-  String meffect;                       // up to 32 Byte - EEPROM 321
-  String heffect;                       // up to 32 Byte - EEPROM 353
-  String clockmode;                     // up to 32 Byte - EEPROM 385
-  String dcolormode;                    // up to 32 Byte - EEPROM 417
-  String dcolor;                        // up to 32 Byte - EEPROM 449
-  String nightmode;                     // up to 32 Byte - EEPROM 481
-  uint8_t wd_hour_start;                // 1 Byte - EEPROM 513
-  uint8_t wd_minute_start;              // 1 Byte - EEPROM 514
-  uint8_t wd_hour_end;                  // 1 Byte - EEPROM 515
-  uint8_t wd_minute_end;                // 1 Byte - EEPROM 516
-  uint8_t we_hour_start;                // 1 Byte - EEPROM 517
-  uint8_t we_minute_start;              // 1 Byte - EEPROM 518
-  uint8_t we_hour_end;                  // 1 Byte - EEPROM 519
-  uint8_t we_minute_end;                // 1 Byte - EEPROM 520
+  String wcolor;                        // up to 32 Byte - EEPROM 160
+  String bcolor;                        // up to 32 Byte - EEPROM 192
+  String wcolormode;                    // up to 32 Byte - EEPROM 224
+  String bcolormode;                    // up to 32 Byte - EEPROM 256
+  uint8_t brightness;                   // 1 Byte - EEPROM 288
+  String meffect;                       // up to 32 Byte - EEPROM 289
+  String heffect;                       // up to 32 Byte - EEPROM 321
+  String clockmode;                     // up to 32 Byte - EEPROM 353
+  String dcolormode;                    // up to 32 Byte - EEPROM 385
+  String dcolor;                        // up to 32 Byte - EEPROM 417
+  String nightmode;                     // up to 32 Byte - EEPROM 449
+  uint8_t wd_hour_start;                // 1 Byte - EEPROM 481
+  uint8_t wd_minute_start;              // 1 Byte - EEPROM 482
+  uint8_t wd_hour_end;                  // 1 Byte - EEPROM 483
+  uint8_t wd_minute_end;                // 1 Byte - EEPROM 484
+  uint8_t we_hour_start;                // 1 Byte - EEPROM 485
+  uint8_t we_minute_start;              // 1 Byte - EEPROM 486
+  uint8_t we_hour_end;                  // 1 Byte - EEPROM 487
+  uint8_t we_minute_end;                // 1 Byte - EEPROM 488
 } config;
 
 
@@ -154,7 +153,6 @@ void DefaultConfig() {
     config.bcolor = "#ff0000";
     config.dcolormode = "random";
     config.dcolor = "#ff0000";
-    config.DeviceName = "ServoWordClock";
     config.nightmode = "silent";
     config.wd_hour_start = 0;
     config.wd_minute_start = 0;
@@ -197,37 +195,36 @@ void WriteConfig(){
   WriteStringToEEPROM(64, config.ssid);
   WriteStringToEEPROM(96, config.password);
   WriteStringToEEPROM(128, config.ntpServerName);
-  WriteStringToEEPROM(160, config.DeviceName);
 
-  WriteStringToEEPROM(192, config.wcolor);
-  WriteStringToEEPROM(224, config.bcolor);
-  WriteStringToEEPROM(256, config.wcolormode);
-  WriteStringToEEPROM(288, config.bcolormode);
+  WriteStringToEEPROM(160, config.wcolor);
+  WriteStringToEEPROM(192, config.bcolor);
+  WriteStringToEEPROM(224, config.wcolormode);
+  WriteStringToEEPROM(256, config.bcolormode);
 
-  EEPROM.write(320, config.brightness);
+  EEPROM.write(288, config.brightness);
 
-  WriteStringToEEPROM(321, config.meffect);
-  WriteStringToEEPROM(353, config.heffect);
-  WriteStringToEEPROM(385, config.clockmode);
+  WriteStringToEEPROM(289, config.meffect);
+  WriteStringToEEPROM(321, config.heffect);
+  WriteStringToEEPROM(353, config.clockmode);
 
-  WriteStringToEEPROM(417, config.dcolormode);
-  WriteStringToEEPROM(449, config.dcolor);
+  WriteStringToEEPROM(385, config.dcolormode);
+  WriteStringToEEPROM(417, config.dcolor);
 
-  WriteStringToEEPROM(481, config.nightmode);
-  EEPROM.write(513, config.wd_hour_start);
-  EEPROM.write(514, config.wd_minute_start);
-  EEPROM.write(515, config.wd_hour_end);
-  EEPROM.write(516, config.wd_minute_end);
-  EEPROM.write(517, config.we_hour_start);
-  EEPROM.write(518, config.we_minute_start);
-  EEPROM.write(519, config.we_hour_end);
-  EEPROM.write(520, config.we_minute_end);
+  WriteStringToEEPROM(449, config.nightmode);
+  EEPROM.write(481, config.wd_hour_start);
+  EEPROM.write(482, config.wd_minute_start);
+  EEPROM.write(483, config.wd_hour_end);
+  EEPROM.write(484, config.wd_minute_end);
+  EEPROM.write(485, config.we_hour_start);
+  EEPROM.write(486, config.we_minute_start);
+  EEPROM.write(487, config.we_hour_end);
+  EEPROM.write(488, config.we_minute_end);
 
   EEPROM.commit();
 }
 
 void ClearConfig() {
-  for (int i = 0 ; i < 520 ; i++) {
+  for (int i = 0 ; i < 512 ; i++) {
     EEPROM.write(i, 0);
   }
 }
@@ -256,26 +253,25 @@ boolean ReadConfig(){
     config.ssid = ReadStringFromEEPROM(64);
     config.password = ReadStringFromEEPROM(96);
     config.ntpServerName = ReadStringFromEEPROM(128);
-    config.DeviceName = ReadStringFromEEPROM(160);
-    config.wcolor = ReadStringFromEEPROM(192);
-    config.bcolor = ReadStringFromEEPROM(224);
-    config.wcolormode = ReadStringFromEEPROM(256);
-    config.bcolormode = ReadStringFromEEPROM(288);
-    config.brightness = EEPROM.read(320);
-    config.meffect = ReadStringFromEEPROM(321);
-    config.heffect = ReadStringFromEEPROM(353);
-    config.clockmode = ReadStringFromEEPROM(385);
-    config.dcolormode = ReadStringFromEEPROM(417);
-    config.dcolor = ReadStringFromEEPROM(449);
-    config.nightmode = ReadStringFromEEPROM(481);
-    config.wd_hour_start = EEPROM.read(513);
-    config.wd_minute_start = EEPROM.read(514);
-    config.wd_hour_end = EEPROM.read(515);
-    config.wd_minute_end = EEPROM.read(516);
-    config.we_hour_start = EEPROM.read(517);
-    config.we_minute_start = EEPROM.read(518);
-    config.we_hour_end = EEPROM.read(519);
-    config.we_minute_end = EEPROM.read(520);
+    config.wcolor = ReadStringFromEEPROM(160);
+    config.bcolor = ReadStringFromEEPROM(192);
+    config.wcolormode = ReadStringFromEEPROM(224);
+    config.bcolormode = ReadStringFromEEPROM(256);
+    config.brightness = EEPROM.read(288);
+    config.meffect = ReadStringFromEEPROM(289);
+    config.heffect = ReadStringFromEEPROM(321);
+    config.clockmode = ReadStringFromEEPROM(353);
+    config.dcolormode = ReadStringFromEEPROM(385);
+    config.dcolor = ReadStringFromEEPROM(417);
+    config.nightmode = ReadStringFromEEPROM(449);
+    config.wd_hour_start = EEPROM.read(481);
+    config.wd_minute_start = EEPROM.read(482);
+    config.wd_hour_end = EEPROM.read(483);
+    config.wd_minute_end = EEPROM.read(484);
+    config.we_hour_start = EEPROM.read(485);
+    config.we_minute_start = EEPROM.read(486);
+    config.we_hour_end = EEPROM.read(487);
+    config.we_minute_end = EEPROM.read(488);
 
     return true;
 
@@ -306,7 +302,6 @@ void printConfig(){
   Serial.printf("SSID:%s\n", config.ssid.c_str());
   Serial.printf("PWD:%s\n", config.password.c_str());
   Serial.printf("ntp ServerName:%s\n", config.ntpServerName.c_str());
-  Serial.printf("Device Name:%s\n", config.DeviceName.c_str());
 
   Serial.printf("Dot Color:%s\n", config.dcolor.c_str());
   Serial.printf("Word Color:%s\n", config.wcolor.c_str());

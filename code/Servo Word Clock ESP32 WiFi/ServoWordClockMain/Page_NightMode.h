@@ -9,7 +9,7 @@ const char PAGE_NightMode[] PROGMEM = R"=====(
 <form action="" method="get">
 <table border="0"  cellspacing="0" cellpadding="3" >
 <tr><td>Night mode</td><td>
-<select  id="nmode" name="nightmode">
+<select  id="nightmode" name="nightmode">
   <option value="off">off</option>
   <option value="silent">silent</option>
 </select>
@@ -47,7 +47,7 @@ void send_night_mode_html(AsyncWebServerRequest *request)
   if (request->args() > 0 )  // Save Settings
   {
     for ( uint8_t i = 0; i < request->args(); i++ ) {
-      if (request->argName(i) == "nmode") config.nightmode = request->arg(i);
+      if (request->argName(i) == "nightmode") config.nightmode = request->arg(i);
       if (request->argName(i) == "wd_hour_start") config.wd_hour_start = request->arg(i).toInt();
       if (request->argName(i) == "wd_minute_start") config.wd_minute_start = request->arg(i).toInt();
       if (request->argName(i) == "wd_hour_end") config.wd_hour_end = request->arg(i).toInt();
@@ -57,8 +57,6 @@ void send_night_mode_html(AsyncWebServerRequest *request)
       if (request->argName(i) == "we_hour_end") config.we_hour_end = request->arg(i).toInt();
       if (request->argName(i) == "we_minute_end") config.we_minute_end = request->arg(i).toInt();
     }
-    // update display
-    updateDisplay = true;
   }
   request->send_P ( 200, "text/html", PAGE_NightMode );
   Serial.println(__FUNCTION__);
@@ -69,7 +67,7 @@ void send_night_mode_values_html(AsyncWebServerRequest *request)
 {
 
   String values ="";
-  values += "nmode|" + (String) config.nightmode + "|input\n";
+  values += "nightmode|" + (String) config.nightmode + "|input\n";
   values += "wd_hour_start|" +  (String) config.wd_hour_start + "|input\n";
   values += "wd_minute_start|" +  (String) config.wd_minute_start + "|input\n";
   values += "wd_hour_end|" +  (String) config.wd_hour_end + "|input\n";
