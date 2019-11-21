@@ -57,9 +57,10 @@ void send_night_mode_html(AsyncWebServerRequest *request)
       if (request->argName(i) == "we_hour_end") config.we_hour_end = request->arg(i).toInt();
       if (request->argName(i) == "we_minute_end") config.we_minute_end = request->arg(i).toInt();
     }
+    WriteConfig();
   }
   request->send_P ( 200, "text/html", PAGE_NightMode );
-  Serial.println(__FUNCTION__);
+  Serial.println(__FUNCTION__); 
 
 }
 

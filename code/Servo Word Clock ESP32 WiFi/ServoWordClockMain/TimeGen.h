@@ -12,7 +12,7 @@ void Gen_Time() {
       long minute_start = config.wd_hour_start*60 + config.wd_minute_start;
       long minute_end = config.wd_hour_end*60 + config.wd_minute_end;
       // change to night mode
-      if(current_minute>=minute_start && current_minute<minute_end) {
+      if( (current_minute>=minute_start && current_minute<minute_end && minute_start<minute_end) || ( (current_minute>=minute_start || current_minute<minute_end) && minute_start>minute_end) ) {
         if(currentMode!=config.nightmode) {
           config.clockmode = config.nightmode;
           updateDisplay = true;
@@ -31,7 +31,7 @@ void Gen_Time() {
       long minute_start = config.we_hour_start*60 + config.we_minute_start;
       long minute_end = config.we_hour_end*60 + config.we_minute_end;
       // change to night mode
-      if(current_minute>=minute_start && current_minute<minute_end) {
+      if( (current_minute>=minute_start && current_minute<minute_end && minute_start<minute_end) || ( (current_minute>=minute_start || current_minute<minute_end) && minute_start>minute_end) ) {
         if(currentMode!=config.nightmode) {
           config.clockmode = config.nightmode;
           updateDisplay = true;
