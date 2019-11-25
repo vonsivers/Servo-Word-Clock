@@ -1,5 +1,27 @@
-#ifndef RO_PAGE_INFORMATION_RO_H
-#define RO_PAGE_INFORMATION_RO_H
+/*
+    This file is part of Servo Wordclock.
+
+    Servo Wordclock is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Servo Wordclock is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Servo Wordclock.  If not, see <https://www.gnu.org/licenses/>.
+ 
+    based on VERBIS by Andrei Erdei - https://github.com/ancalex/VERBIS
+    modifed by Moritz v. Sivers, 25.11.2019
+    
+    Copyright 2019 Moritz v. Sivers
+ */
+ 
+#ifndef PAGE_INFORMATION_H
+#define PAGE_INFORMATION_H
 
 //
 //   The HTML PAGE
@@ -9,7 +31,7 @@ const char PAGE_Information[] PROGMEM = R"=====(
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" href="style.css" type="text/css" />
 <script src="microajax.js"></script> 
-<a href="/"  class="btn btn--s"><</a>&nbsp;&nbsp;<strong>Informa&#539;ii Re&#539;ea</strong>
+<a href="/"  class="btn btn--s"><</a>&nbsp;&nbsp;<strong>Network Information</strong>
 <hr>
 <table border="0"  cellspacing="0" cellpadding="3" style="width:310px" >
 <tr><td align="right">SSID :</td><td><span id="x_ssid"></span></td></tr>
@@ -42,12 +64,13 @@ function load(e,t,n){if("js"==t){var a=document.createElement("script");a.src=e,
 </script>
 )=====" ;
 
+//<tr><td colspan="2" align="center"><a href="javascript:GetState()" class="btn btn--m btn--blue">Scanare</a></td></tr>
 
 //
 // FILL WITH INFOMATION
 //
 
-void send_information_values_html ()
+void send_information_values_html (AsyncWebServerRequest *request)
 {
 
   String values ="";
@@ -57,9 +80,9 @@ void send_information_values_html ()
   values += "x_gateway|" +  (String) WiFi.gatewayIP()[0] + "." +  (String) WiFi.gatewayIP()[1] + "." +  (String) WiFi.gatewayIP()[2] + "." + (String) WiFi.gatewayIP()[3] +  "|div\n";
   values += "x_netmask|" +  (String) WiFi.subnetMask()[0] + "." +  (String) WiFi.subnetMask()[1] + "." +  (String) WiFi.subnetMask()[2] + "." + (String) WiFi.subnetMask()[3] +  "|div\n";
   values += "x_mac|" + GetMacAddress() +  "|div\n";
-  server.send ( 200, "text/plain", values);
+  request->send ( 200, "text/plain", values);
   Serial.println(__FUNCTION__);
   AdminTimeOutCounter=0;
 }
 
-#endif /* RO_PAGE_INFORMATION_RO_H */
+#endif /* EN_PAGE_INFORMATION_EN_H */

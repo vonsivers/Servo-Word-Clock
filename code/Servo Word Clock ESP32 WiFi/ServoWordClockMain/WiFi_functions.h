@@ -1,3 +1,25 @@
+/*
+    This file is part of Servo Wordclock.
+
+    Servo Wordclock is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Servo Wordclock is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Servo Wordclock.  If not, see <https://www.gnu.org/licenses/>.
+ 
+    based on VERBIS by Andrei Erdei - https://github.com/ancalex/VERBIS
+    modifed by Moritz v. Sivers, 25.11.2019
+    
+    Copyright 2019 Moritz v. Sivers
+ */
+
 #ifndef WIFI_FUNCTIONS_H
 #define WIFI_FUNCTIONS_H
 
@@ -28,10 +50,13 @@ public:
 // start AP mode
 //
 void startAP() {
-  // DEFAULT CONFIG
     Serial.println("Starting WiFi in AP mode");
     WiFi.mode(WIFI_AP);
-    WiFi.softAP(config.ssid.c_str());
+    uint64_t macAddress = ESP.getEfuseMac();
+    uint64_t macAddressTrunc = macAddress << 40;
+    chipID = macAddressTrunc >> 40;
+    String ssid = "ServoWordClock-" + String(chipID,HEX);       // SSID of access point
+    WiFi.softAP(ssid.c_str());
     //dnsServer.start(53, "*", WiFi.softAPIP());
     //server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER);//only when requested from AP
     Serial.print("Wifi ip:");Serial.println(WiFi.softAPIP());
@@ -53,7 +78,12 @@ void startSTA() {
       //printConfig();
       Serial.println("Starting WiFi in station mode");
       WiFi.mode(WIFI_STA);
-      WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE);
+      if (!config.dhcp) {
+        WiFi.config(IPAddress(config.IP[0], config.IP[1], config.IP[2], config.IP[3] ),  IPAddress(config.Gateway[0], config.Gateway[1], config.Gateway[2], config.Gateway[3] ) , IPAddress(config.Netmask[0], config.Netmask[1], config.Netmask[2], config.Netmask[3] ));
+      }
+      else {
+        WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE);
+      }
       WiFi.setHostname("ServoWordClock");                   // allow access via http://servowordclock from OUTSIDE network
       WiFi.begin(config.ssid.c_str(), config.password.c_str());
       WIFI_connected = WiFi.waitForConnectResult();
@@ -85,7 +115,12 @@ void reconnectSTA() {
       WiFi.disconnect();
       WiFi.mode(WIFI_OFF);
       WiFi.mode(WIFI_STA);
-      WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE);
+      if (!config.dhcp) {
+        WiFi.config(IPAddress(config.IP[0], config.IP[1], config.IP[2], config.IP[3] ),  IPAddress(config.Gateway[0], config.Gateway[1], config.Gateway[2], config.Gateway[3] ) , IPAddress(config.Netmask[0], config.Netmask[1], config.Netmask[2], config.Netmask[3] ));
+      }
+      else {
+        WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE);
+      }
       WiFi.setHostname("ServoWordClock");                   // allow access via http://servowordclock from OUTSIDE network
       WiFi.begin(config.ssid.c_str(), config.password.c_str());
       delay(500);
@@ -111,41 +146,43 @@ void reconnectSTA() {
 void startServer() {
   server.on ( "/", [](AsyncWebServerRequest *request) {
       Serial.println("admin.html");
-      //server.send_P ( 200, "text/html", PAGE_AdminMainPage);  // const char top of page
       request->send_P( 200, "text/html", PAGE_AdminMainPage); 
     }  );
 
     server.on ( "/favicon.ico",   [](AsyncWebServerRequest *request) {
       Serial.println("favicon.ico");
-      //server.send( 200, "text/html", "" );
       request->send( 200, "text/html", "" );
     }  );
 
         server.on ( "/config.html", send_network_configuration_html );
+        server.on ( "/info.html", [](AsyncWebServerRequest *request) {
+          Serial.println("info.html");
+          request->send_P ( 200, "text/html", PAGE_Information );
+        }  );
         server.on ( "/ntp.html", send_NTP_configuration_html  );
         server.on ( "/time.html", send_Time_Set_html );
         server.on ( "/display.html", send_display_settings_html  );
         server.on ( "/nightmode.html", send_night_mode_html  );
+        server.on ( "/advanced.html", send_admin_settings_html  );
         server.on ( "/style.css", [](AsyncWebServerRequest *request) {
           Serial.println("style.css");
-          //server.send_P ( 200, "text/plain", PAGE_Style_css );
           request->send_P( 200, "text/plain", PAGE_Style_css );
         } );
         server.on ( "/microajax.js", [](AsyncWebServerRequest *request) {
           Serial.println("microajax.js");
-          //server.send_P ( 200, "text/plain", PAGE_microajax_js );
           request->send_P( 200, "text/plain", PAGE_microajax_js );
         } );
         server.on ( "/admin/values", send_network_configuration_values_html );
         server.on ( "/admin/connectionstate", send_connection_state_values_html );
+        server.on ( "/admin/infovalues", send_information_values_html );
         server.on ( "/admin/ntpvalues", send_NTP_configuration_values_html );
         server.on ( "/admin/timevalues", send_Time_Set_values_html );
         server.on ( "/admin/displayvalues", send_display_settings_values_html );
         server.on ( "/admin/nightmode", send_night_mode_values_html );
+        server.on ( "/admin/adminvalues", send_admin_settings_values_html );
 
     server.onNotFound ( [](AsyncWebServerRequest *request) {
       Serial.println("Page Not Found");
-      //server.send ( 400, "text/html", "Page not Found" );
       request->send( 404, "text/plain", "Page not Found" );
     }  );
   server.begin();
@@ -153,22 +190,7 @@ void startServer() {
 }
 
 
-// configure Wifi
-//
-/*
-void ConfigureWifi(){
-  Serial.println("Configuring Wifi");
-  WiFi.begin (config.ssid.c_str(), config.password.c_str());
 
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.println("WiFi not connected");
-    delay(500);
-  }
-  if (!config.dhcp)
-  {
-    WiFi.config(IPAddress(config.IP[0], config.IP[1], config.IP[2], config.IP[3] ),  IPAddress(config.Gateway[0], config.Gateway[1], config.Gateway[2], config.Gateway[3] ) , IPAddress(config.Netmask[0], config.Netmask[1], config.Netmask[2], config.Netmask[3] ));
-  }
-}
-*/
+
 
 #endif

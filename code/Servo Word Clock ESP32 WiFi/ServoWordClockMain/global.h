@@ -1,3 +1,25 @@
+/*
+    This file is part of Servo Wordclock.
+
+    Servo Wordclock is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Servo Wordclock is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Servo Wordclock.  If not, see <https://www.gnu.org/licenses/>.
+ 
+    based on VERBIS by Andrei Erdei - https://github.com/ancalex/VERBIS
+    modifed by Moritz v. Sivers, 25.11.2019
+    
+    Copyright 2019 Moritz v. Sivers
+ */
+
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
@@ -227,6 +249,7 @@ void ClearConfig() {
   for (int i = 0 ; i < 512 ; i++) {
     EEPROM.write(i, 0);
   }
+  EEPROM.commit();
 }
 
 boolean ReadConfig(){
@@ -330,6 +353,23 @@ void printConfig(){
 
 }
 
+// configure Wifi
+//
+/*
+void ConfigureWifi(){
+  Serial.println("Configuring Wifi");
+  WiFi.begin (config.ssid.c_str(), config.password.c_str());
+
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi not connected");
+    delay(500);
+  }
+  if (!config.dhcp)
+  {
+    WiFi.config(IPAddress(config.IP[0], config.IP[1], config.IP[2], config.IP[3] ),  IPAddress(config.Gateway[0], config.Gateway[1], config.Gateway[2], config.Gateway[3] ) , IPAddress(config.Netmask[0], config.Netmask[1], config.Netmask[2], config.Netmask[3] ));
+  }
+}
+*/
 
 
 String GetMacAddress(){

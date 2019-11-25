@@ -1,9 +1,30 @@
+/*
+    This file is part of Servo Wordclock.
+
+    Servo Wordclock is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Servo Wordclock is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Servo Wordclock.  If not, see <https://www.gnu.org/licenses/>.
+ 
+    based on VERBIS by Andrei Erdei - https://github.com/ancalex/VERBIS
+    modifed by Moritz v. Sivers, 25.11.2019
+    
+    Copyright 2019 Moritz v. Sivers
+ */
+
 #define FASTLED_INTERRUPT_RETRY_COUNT 1
 #include <FastLED.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 #include <WiFi.h>
-//#include <WebServer.h>
 #include <DNSServer.h>
 #include "ESPAsyncWebServer.h"    // https://github.com/me-no-dev/ESPAsyncWebServer
 #include <WiFiUdp.h>
@@ -30,6 +51,8 @@
 #include "Page_SetTime.h"
 #include "Page_DisplaySettings.h"
 #include "Page_NightMode.h"
+#include "Page_Information.h"
+#include "Page_AdminSettings.h"
 
 #include "WiFi_functions.h"
 
@@ -65,6 +88,7 @@ void setup() {
   }
   else {
     DefaultConfig();
+    WriteConfig();
     startAP();
   }
 

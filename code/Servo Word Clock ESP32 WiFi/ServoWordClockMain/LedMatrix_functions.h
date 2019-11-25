@@ -1,3 +1,25 @@
+/*
+    This file is part of Servo Wordclock.
+
+    Servo Wordclock is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Servo Wordclock is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Servo Wordclock.  If not, see <https://www.gnu.org/licenses/>.
+ 
+    based on VERBIS by Andrei Erdei - https://github.com/ancalex/VERBIS
+    modifed by Moritz v. Sivers, 25.11.2019
+    
+    Copyright 2019 Moritz v. Sivers
+ */
+ 
 #ifndef LEDMATRIX_FUNCTIONS_H
 #define LEDMATRIX_FUNCTIONS_H
 
@@ -371,8 +393,11 @@ void lightup(uint8_t Word[][2], int nLetters, String effect) {
   if(config.wcolormode=="random") {
       do {    
       hue_w = random(256); 
-    } while(abs(hue_w-hue_b)<32 && (abs(hue_w-hue_b)>224));   // ensure that word color is different enough from bkg color
+      //Serial.print("hue_w="); Serial.println(hue_w);
+      //Serial.print("abs(hue_w-hue_b)="); Serial.println(abs(hue_w-hue_b));
+    } while(abs(hue_w-hue_b)<32 || (abs(hue_w-hue_b)>224));   // ensure that word color is different enough from bkg color
   }
+  Serial.print("Hue words: "); Serial.println(hue_w);
   
   if (effect=="effect1") {    // typing effect (letters appear from left to right)
     for (int i = 0; i < nLetters; i++) {
@@ -537,7 +562,7 @@ void updateMinutes(String effect) {
   else if(config.dcolormode=="random") {
     do {    
       hue_d = random(256); 
-    } while(abs(hue_d-hue_b)<32 && (abs(hue_d-hue_b)>224));   // ensure that dot color is different enough from bkg color
+    } while(abs(hue_d-hue_b)<32 || (abs(hue_d-hue_b)>224));   // ensure that dot color is different enough from bkg color
   }
   
   int ndots = (DateTime.minute % 5);
@@ -619,6 +644,7 @@ void updateTime() {
   else if(config.bcolormode=="random") {
     hue_b = random(256);
   }
+  Serial.print("Hue background: "); Serial.println(hue_b);
 
   // choose word color
   if(config.wcolormode=="fixed") {
@@ -627,8 +653,9 @@ void updateTime() {
   else {
     do {    
       hue_w = random(256); 
-    } while(abs(hue_w-hue_b)<32 && (abs(hue_w-hue_b)>224));   // ensure that word color is different enough from bkg color
+    } while(abs(hue_w-hue_b)<32 || (abs(hue_w-hue_b)>224));   // ensure that word color is different enough from bkg color
   }
+  Serial.print("Hue words: "); Serial.println(hue_w);
 
   // move servos to front if mode was changed to silent
   if(config.clockmode=="silent" && currentMode!="silent") {
