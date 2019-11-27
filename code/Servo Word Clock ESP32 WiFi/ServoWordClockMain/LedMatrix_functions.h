@@ -125,7 +125,7 @@ uint16_t DELAY_slow = 5;
 uint16_t DELAY_fast = 1;
 
 // current clockmode
-String currentMode = config.clockmode;
+String currentMode;
 
 // counter for no Wifi animation
 int wifiAnimation = 0;                   
@@ -302,16 +302,33 @@ void initMatrix() {
   }
 }
 
+// initialize servo position variables
+//
+void initCurrentPos() {
+  for (int row=0; row<11; row++) {
+    for (int column=0; column<11; column++) {
+      if(currentMode == "silent"){
+        currentPos[row][column]=SERVOMAX;
+      }
+      else if(currentMode == "off") {
+        currentPos[row][column]=SERVOMIN;
+      }
+    }
+  }
+}
+
 // move all servos to front
 //
 void ServosToFront() {
-  for (int row=0; row<11; row++) {
-    for (int column=0; column<11; column++) {
-      if(currentPos[row][column]<SERVOMAX) {
-        moveServo(row,column,SERVOMAX);
-        delay(150);
+  for(int pos=SERVOMIN+1; pos<=SERVOMAX; pos++) {
+    for (int row=0; row<11; ++row) {
+      for (int column=0; column<11; ++column) {
+          if (currentPos[row][column]<SERVOMAX) {
+            moveServo(row,column,pos);
+          } 
       }
     }
+    delay(DELAY_slow);
   }
 }
 
@@ -667,7 +684,9 @@ void updateTime() {
   // move servos to back and switch off LEDs if mode was changed to off
   else if(config.clockmode=="off" && currentMode!="off") {
     Serial.println("clock mode switched to off");
-    initMatrix();
+    LettersToBack();
+    FastLED.clear();
+    FastLED.show();
     delay(500);
     sleepServos();
   }

@@ -97,10 +97,21 @@ void setup() {
 
   printConfig();
 
+  // initialize servo controller boards
   initServos(); 
 
-  currentMode = config.clockmode;    // get current clock mode first: no resetting of servos if clockmode is silent
-  initMatrix();
+  // only reset servos if clock is in normal mode
+  currentMode = config.clockmode;    
+  if(currentMode == "normal") {
+    initMatrix();
+  }
+  // otherwise put servos again to sleep
+  else {
+    sleepServos();
+  }
+  // initialize servo position variables
+  initCurrentPos();
+  
 
   lastmin = DateTime.minute; // initialize last update of display
  

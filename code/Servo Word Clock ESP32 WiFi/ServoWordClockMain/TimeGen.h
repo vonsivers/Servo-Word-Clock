@@ -38,6 +38,7 @@ void Gen_Time() {
         if(currentMode!=config.nightmode) {
           config.clockmode = config.nightmode;
           updateDisplay = true;
+          WriteConfig();    // save current clock mode
         }
       }
       // change to normal mode
@@ -45,6 +46,7 @@ void Gen_Time() {
         if(currentMode!="normal") {
           config.clockmode = "normal";
           updateDisplay = true;
+          WriteConfig();    // save current clock mode
         }
       }
     }
@@ -56,6 +58,7 @@ void Gen_Time() {
       if( (current_minute>=minute_start && current_minute<minute_end && minute_start<minute_end) || ( (current_minute>=minute_start || current_minute<minute_end) && minute_start>minute_end) ) {
         if(currentMode!=config.nightmode) {
           config.clockmode = config.nightmode;
+          WriteConfig();    // save current clock mode
           updateDisplay = true;
         }
       }
@@ -64,6 +67,7 @@ void Gen_Time() {
         if(currentMode!="normal") {
           config.clockmode = "normal";
           updateDisplay = true;
+          WriteConfig();    // save current clock mode
         }
       }
     }
