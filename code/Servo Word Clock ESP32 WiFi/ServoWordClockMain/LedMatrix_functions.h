@@ -23,12 +23,14 @@
 #ifndef LEDMATRIX_FUNCTIONS_H
 #define LEDMATRIX_FUNCTIONS_H
 
-#define DATA_PIN    15
+#define DATA_PIN    32
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define NUM_LEDS    114
 CRGB leds[NUM_LEDS];
 #define FRAMES_PER_SECOND  50
+
+// #define OE_PIN  33  // PCA9685 output enable pin (active low)
 
 // min/max position of servos
 const uint16_t SERVOMIN = 480;
@@ -192,6 +194,7 @@ uint8_t hexToHue(String hex) {
 // initialize servos
 //
 void initServos() {
+  
   pwm1.begin();
   pwm1.setPWMFreq(120);  
   pwm2.begin();
@@ -214,6 +217,7 @@ void initServos() {
   pwm10.setPWMFreq(120);
   pwm11.begin();
   pwm11.setPWMFreq(120);
+
 }
 
 
@@ -221,6 +225,12 @@ void initServos() {
 //
 void sleepServos() {
   Serial.println("put servos to sleep");
+
+
+// commented because it causes some servos to jump to another position
+// see https://forums.adafruit.com/viewtopic.php?f=19&t=56256
+// disabling servos via OE pin causes same issue
+/*
   pwm1.sleep();
   pwm2.sleep();
   pwm3.sleep();
@@ -232,12 +242,16 @@ void sleepServos() {
   pwm9.sleep();
   pwm10.sleep();
   pwm11.sleep();
+  */
+  
 }
 
-// put servos to sleep
+// wake up servos
 //
 void wakeupServos() {
   Serial.println("wake up servos");
+
+  /*
   pwm1.wakeup();
   pwm2.wakeup();
   pwm3.wakeup();
@@ -249,6 +263,8 @@ void wakeupServos() {
   pwm9.wakeup();
   pwm10.wakeup();
   pwm11.wakeup();
+  */
+  
 }
 
 // move servo to position
@@ -377,6 +393,16 @@ void lightLEDBrightness(int row, int column, uint8_t hue, uint8_t brightness) {
     
  currentHue[row][column] = hue; 
     
+}
+
+// make all LEDs black
+//
+void clearLEDs() {
+  for (int row=0; row<11; ++row) {
+      for (int column=0; column<11; ++column) {
+        lightLEDBrightness(row,column,0,0);
+      }
+  }  
 }
 
 // show symbol on display
@@ -942,7 +968,6 @@ void LED_no_wifi() {
 void LED_no_ntp() {
 
   uint8_t hue = 96;
-  FastLED.clear();
   lightupSymBrightness(clockSym,sizeof(clockSym)/sizeof(clockSym[0]),hue,fade_counter);
     fade_counter += fade_increment;
 
@@ -953,6 +978,8 @@ void LED_no_ntp() {
               fade_increment = 1;
             }
             FastLED.delay(1);
+            clearLEDs();
+            FastLED.show();
 
   /*
 if(millis()-ntpMillis>1000) {

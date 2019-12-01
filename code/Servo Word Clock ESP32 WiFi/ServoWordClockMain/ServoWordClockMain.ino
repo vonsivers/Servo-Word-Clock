@@ -71,11 +71,14 @@ void setup() {
 
   Serial.println("Booting");
 
-  // get random seed from unused pin
-  randomSeed(analogRead(2));
+  // pinMode (OE_PIN, OUTPUT);
 
-  //**** Network Config load
-  EEPROM.begin(512); // define an EEPROM space of 512 Bytes to store data
+  // get random seed from unused ADC1 pin
+  pinMode (34, INPUT);
+  randomSeed(analogRead(34));
+
+  // define an EEPROM space of 512 Bytes to store data
+  EEPROM.begin(512); 
 
   // just for testing clear EEPROM before start -> TO BE REMOVED!
   //ClearConfig();
