@@ -30,7 +30,7 @@ const char PAGE_ColorSettings[] PROGMEM = R"=====(
 <hr>
 <form action="" method="get">
 <table border="0"  cellspacing="0" cellpadding="3" >
-<tr><td>Brightness</td><td><input type="range" min="1" max="255" value="255" id="brightness" name="brightness"></td></tr>
+<tr><td>Brightness</td><td><input type="range" min="50" max="255" value="255" id="brightness" name="brightness"></td></tr>
 <tr><td>Hour effect</td><td>
 <select id="heffect" name="heffect">
   <option value="effect1">typing</option>
