@@ -23,7 +23,12 @@
 #ifndef LEDMATRIX_FUNCTIONS_H
 #define LEDMATRIX_FUNCTIONS_H
 
-#define DATA_PIN    32
+#ifdef ESP32
+  #define DATA_PIN    32
+#elif defined(ESP8266)
+  #define FASTLED_ESP8266_NODEMCU_PIN_ORDER     // use pin number as writen on the board
+  #define DATA_PIN    3
+#endif
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define NUM_LEDS    114

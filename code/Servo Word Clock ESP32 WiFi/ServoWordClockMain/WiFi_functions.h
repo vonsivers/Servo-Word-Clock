@@ -52,23 +52,29 @@ public:
 void startAP() {
     Serial.println("Starting WiFi in AP mode");
     WiFi.mode(WIFI_AP);
+    #ifdef ESP32
     uint64_t macAddress = ESP.getEfuseMac();
     uint64_t macAddressTrunc = macAddress << 40;
     chipID = macAddressTrunc >> 40;
+    #elif defined(ESP8266)
+    chipID = ESP.getChipId();
+    #endif
     String ssid = "ServoWordClock-" + String(chipID,HEX);       // SSID of access point
     WiFi.softAP(ssid.c_str());
     //dnsServer.start(53, "*", WiFi.softAPIP());
     //server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER);//only when requested from AP
-    Serial.print("Wifi ip:");Serial.println(WiFi.softAPIP());
+    Serial.print("Wifi AP IP: "); Serial.println(WiFi.softAPIP());
 
     // allow access via http://servowordclock.local from inside network
-    if (!MDNS.begin("ServoWordClock")) {
+    /*
+    if (!MDNS.begin("ServoWordClock",WiFi.softAPIP())) {
         Serial.println("Error setting up MDNS responder!");
         while(1) {
             delay(1000);
         }
     }
     Serial.println("mDNS responder started");
+    */
 }
 
 // start station mode
@@ -82,26 +88,36 @@ void startSTA() {
         WiFi.config(IPAddress(config.IP[0], config.IP[1], config.IP[2], config.IP[3] ),  IPAddress(config.Gateway[0], config.Gateway[1], config.Gateway[2], config.Gateway[3] ) , IPAddress(config.Netmask[0], config.Netmask[1], config.Netmask[2], config.Netmask[3] ));
       }
       else {
-        WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE);
+        //WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE);
       }
-      WiFi.setHostname("ServoWordClock");                   // allow access via http://servowordclock from OUTSIDE network
+      #ifdef ESP32
+        WiFi.setHostname("ServoWordClock");                   // allow access via http://servowordclock from OUTSIDE network
+      #elif defined(ESP8266)
+        WiFi.hostname("ServoWordClock");
+      #endif
       WiFi.begin(config.ssid.c_str(), config.password.c_str());
       WIFI_connected = WiFi.waitForConnectResult();
-      if(WIFI_connected!= WL_CONNECTED ) {
-          Serial.println("Connection Failed! activating the AP mode...");
-          startAP();
+      if(WIFI_connected== WL_CONNECTED ) {
+        Serial.print("Wifi IP: "); Serial.println(WiFi.localIP());
+      }
+      else {
+        Serial.println("Connection Failed! activating the AP mode...");
+        startAP();
       }
 
-      Serial.print("Wifi ip:");Serial.println(WiFi.localIP());
+      
 
       // allow access via http://servowordclock.local from INSIDE network
-      if (!MDNS.begin("ServoWordClock")) {
+      /*
+      if (!MDNS.begin("ServoWordClock",WiFi.localIP())) {
         Serial.println("Error setting up MDNS responder!");
         while(1) {
             delay(1000);
         }
     }
     Serial.println("mDNS responder started");
+    */
+    
   
 }
 
@@ -121,7 +137,11 @@ void reconnectSTA() {
       else {
         WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE);
       }
-      WiFi.setHostname("ServoWordClock");                   // allow access via http://servowordclock from OUTSIDE network
+      #ifdef ESP32
+        WiFi.setHostname("ServoWordClock");                   // allow access via http://servowordclock from OUTSIDE network
+      #elif defined(ESP8266)
+        WiFi.hostname("ServoWordClock");
+      #endif
       WiFi.begin(config.ssid.c_str(), config.password.c_str());
       delay(500);
   }
@@ -129,16 +149,18 @@ void reconnectSTA() {
       Serial.println("\nReboot");
       ESP.restart();
   }
-  Serial.print("Wifi ip:");Serial.println(WiFi.localIP());
+  Serial.print("Wifi IP: "); Serial.println(WiFi.localIP());
 
       // allow access via http://servowordclock.local from INSIDE network
-      if (!MDNS.begin("ServoWordClock")) {
+      /*
+      if (!MDNS.begin("ServoWordClock",WiFi.localIP())) {
         Serial.println("Error setting up MDNS responder!");
         while(1) {
             delay(1000);
         }
     }
     Serial.println("mDNS responder started");
+    */
 }
 
 // start webserver

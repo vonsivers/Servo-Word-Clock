@@ -152,9 +152,13 @@ String  ReadStringFromEEPROM(int beginaddress){
 
 
 void DefaultConfig() {
-   uint64_t macAddress = ESP.getEfuseMac();
+  #ifdef ESP32
+    uint64_t macAddress = ESP.getEfuseMac();
     uint64_t macAddressTrunc = macAddress << 40;
     chipID = macAddressTrunc >> 40;
+  #elif defined(ESP8266)
+    chipID = ESP.getChipId();
+  #endif
     config.ssid = "ServoWordClock-" + String(chipID,HEX);       // SSID of access point
     config.password = "" ;   // password of access point
     config.dhcp = true;

@@ -45,11 +45,16 @@ Connect to Router with these settings:<br>
 <strong>Networks:</strong><br>
 <table border="0"  cellspacing="3" style="width:310px" >
 <tr><td><div id="networks">Scanning...</div></td></tr>
-<tr><td align="center"><a href="javascript:GetState()" style="width:150px" class="btn btn--m btn--blue">Refresh</a></td></tr>
+<tr><td align="center"><a href="javascript:reload()" style="width:150px" class="btn btn--m btn--blue">Refresh</a></td></tr>
 </table>
 
 
 <script>
+
+function reload()
+{
+  location.reload();
+}
 
 function GetState()
 {
@@ -74,16 +79,12 @@ window.onload = function ()
 }
 function load(e,t,n){if("js"==t){var a=document.createElement("script");a.src=e,a.type="text/javascript",a.async=!1,a.onload=function(){n()},document.getElementsByTagName("head")[0].appendChild(a)}else if("css"==t){var a=document.createElement("link");a.href=e,a.rel="stylesheet",a.type="text/css",a.async=!1,a.onload=function(){n()},document.getElementsByTagName("head")[0].appendChild(a)}}
 
-
-
-
 </script>
-
-
 )=====";
 
+
+
 const char PAGE_WaitAndReload[] PROGMEM = R"=====(
-<meta http-equiv="refresh" content="5; URL=config.html">
 Please Wait....Configuring and Restarting.
 )=====";
 
@@ -94,16 +95,24 @@ Please Wait....Configuring and Restarting.
 
 void send_network_configuration_html(AsyncWebServerRequest *request)
 {
+  Serial.println(__FUNCTION__);
+
+  // trigger Wi-Fi network scan
+  int n = WiFi.scanComplete();
+  if (n == -2) {
+    Serial.println("\nScan start ... ");
+    WiFi.scanNetworks(true);
+  }
 
 	if (request->args() > 0 )  // Save Settings
 	{
 		String temp = "";
 		config.dhcp = true;
 		for ( uint8_t i = 0; i < request->args(); i++ ) {
-			if (request->argName(i) == "ssid") config.ssid =   urldecode(request->arg(i));
+      if (request->argName(i) == "ssid") config.ssid =   urldecode(request->arg(i));
 			if (request->argName(i) == "password") config.password =    urldecode(request->arg(i));
 		}
-		 request->send ( 200, "text/html", PAGE_WaitAndReload );
+		 request->send_P ( 200, "text/html", PAGE_WaitAndReload );
 		WriteConfig();
 		AdminTimeOutCounter=0;
     delay(3000);
@@ -113,9 +122,9 @@ void send_network_configuration_html(AsyncWebServerRequest *request)
 	}
 	else
 	{
-		request->send ( 200, "text/html", PAGE_NetworkConfiguration );
+		request->send_P ( 200, "text/html", PAGE_NetworkConfiguration );
 	}
-	Serial.println(__FUNCTION__);
+	
 }
 
 
@@ -126,13 +135,13 @@ void send_network_configuration_html(AsyncWebServerRequest *request)
 
 void send_network_configuration_values_html(AsyncWebServerRequest *request)
 {
-
+  Serial.println(__FUNCTION__);
 	String values ="";
 
 	values += "ssid|" + (String) config.ssid + "|input\n";
 	values += "password|" +  (String) config.password + "|input\n";
 	request->send ( 200, "text/plain", values);
-	Serial.println(__FUNCTION__);
+	
 
 }
 
@@ -140,32 +149,34 @@ void send_network_configuration_values_html(AsyncWebServerRequest *request)
 //
 //   FILL THE PAGE WITH NETWORKSTATE & NETWORKS
 //
-
 void send_connection_state_values_html(AsyncWebServerRequest *request)
 {
+  Serial.println(__FUNCTION__);
 
 	String state = "N/A";
 	String Networks = "";
 	if (WiFi.status() == 0) state = "Idle";
-	else if (WiFi.status() == 1) state = "NO SSID AVAILBLE";
+	else if (WiFi.status() == 1) state = "NO SSID AVAILABLE";
 	else if (WiFi.status() == 2) state = "SCAN COMPLETED";
 	else if (WiFi.status() == 3) state = "CONNECTED";
 	else if (WiFi.status() == 4) state = "CONNECT FAILED";
 	else if (WiFi.status() == 5) state = "CONNECTION LOST";
 	else if (WiFi.status() == 6) state = "DISCONNECTED";
 
-
-
-	 int n = WiFi.scanNetworks();
-
-	 if (n == 0)
+  // trigger Wi-Fi network scan
+  int n = WiFi.scanComplete();
+  if (n == -2) {
+    Serial.println("\nScan start ... ");
+    WiFi.scanNetworks(true);
+  }
+  else if (n == 0)
 	 {
+    Serial.println("no networks found ");
 		 Networks = "<font color='#FF0000'>No networks found!</font>";
 	 }
-	else
+	else if(n>0)
     {
-
-
+      Serial.println("some networks found ");
 		Networks = "Found " +String(n) + " Networks<br>";
 		Networks += "<table border='0' cellspacing='0' cellpadding='3'>";
 		Networks += "<tr bgcolor='#DDDDDD' ><td><strong>Name</strong></td><td><strong>Quality</strong></td><td><strong>Enc</strong></td><tr>";
@@ -185,17 +196,22 @@ void send_connection_state_values_html(AsyncWebServerRequest *request)
 				quality = 2 * (WiFi.RSSI(i) + 100);
 			}
 
-
+    #ifdef ESP32
 			Networks += "<tr><td><a href='javascript:selssid(\""  +  String(WiFi.SSID(i))  + "\")'>"  +  String(WiFi.SSID(i))  + "</a></td><td>" +  String(quality) + "%</td><td>" +  String((WiFi.encryptionType(i) == WIFI_AUTH_OPEN)?" ":"*")  + "</td></tr>";
+    #elif defined(ESP8266)
+      Networks += "<tr><td><a href='javascript:selssid(\""  +  String(WiFi.SSID(i))  + "\")'>"  +  String(WiFi.SSID(i))  + "</a></td><td>" +  String(quality) + "%</td><td>" +  String((WiFi.encryptionType(i) == ENC_TYPE_NONE)?" ":"*")  + "</td></tr>";
+    #endif
 		}
 		Networks += "</table>";
+   
+    WiFi.scanDelete();
 	}
+
 
 	String values ="";
 	values += "connectionstate|" +  state + "|div\n";
 	values += "networks|" +  Networks + "|div\n";
-	request->send ( 200, "text/plain", values);
-	Serial.println(__FUNCTION__);
+	request->send ( 200, "text/plain", values);	
 
 }
 

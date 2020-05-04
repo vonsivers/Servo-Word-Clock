@@ -24,11 +24,19 @@
 #include <FastLED.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
-#include <WiFi.h>
+#ifdef ESP32
+  #include <WiFi.h>
+  #include <ESPmDNS.h>
+  #include <AsyncTCP.h>
+#elif defined(ESP8266)
+  #include <ESP8266WiFi.h>
+  #include <ESP8266mDNS.h>
+  #include <ESPAsyncTCP.h>
+#endif
 #include <DNSServer.h>
 #include "ESPAsyncWebServer.h"    // https://github.com/me-no-dev/ESPAsyncWebServer
 #include <WiFiUdp.h>
-#include <ESPmDNS.h>
+
 #include <Ticker.h>
 #include <EEPROM.h>
 

@@ -108,7 +108,7 @@ void send_admin_settings_html(AsyncWebServerRequest *request)
       if (request->argName(i) == "reset") isReset = true;
     }
     
-    request->send ( 200, "text/html", PAGE_WaitAndReloadAdvanced );
+    request->send_P ( 200, "text/html", PAGE_WaitAndReloadAdvanced );
     
     WriteConfig();
     // factory reset
@@ -123,7 +123,7 @@ void send_admin_settings_html(AsyncWebServerRequest *request)
   }
   else
   {
-    request->send ( 200, "text/html", PAGE_AdminSettings );
+    request->send_P ( 200, "text/html", PAGE_AdminSettings );
   }
   Serial.println(__FUNCTION__);
 }
