@@ -66,6 +66,9 @@ function load(e,t,n){if("js"==t){var a=document.createElement("script");a.src=e,
 
 void send_night_mode_html(AsyncWebServerRequest *request)
 {
+  if(!request->authenticate(http_username, http_password))
+        return request->requestAuthentication();
+        
   if (request->args() > 0 )  // Save Settings
   {
     for ( uint8_t i = 0; i < request->args(); i++ ) {

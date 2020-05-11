@@ -86,6 +86,9 @@ Please Wait....Configuring and Restarting.
 
 void send_admin_settings_html(AsyncWebServerRequest *request)
 {
+  if(!request->authenticate(http_username, http_password))
+        return request->requestAuthentication();
+        
 	if (request->args() > 0 )  // Save Settings
   {
     String temp = "";

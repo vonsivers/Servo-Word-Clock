@@ -36,8 +36,16 @@ const char PAGE_AdminMainPage[] PROGMEM = R"=====(
 <a href="time.html"   style="width:250px"  class="btn btn--m btn--blue" >Manual Time Setting</a><br>
 <a href="display.html"   style="width:250px"  class="btn btn--m btn--blue" >Display Settings</a><br>
 <a href="nightmode.html"   style="width:250px"  class="btn btn--m btn--blue" >Night Mode Settings</a><br>
+<button onclick="logoutButton()" style="width:150px"  class="btn btn--m btn--blue" >Logout</button></a></br>
 
 <script>
+function logoutButton() {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "logout", true);
+  xhr.send();
+  setTimeout(function(){ window.open("/logged-out","_self"); }, 500);
+}
+
 window.onload = function ()
 {
 	load("style.css","css", function() 
@@ -53,5 +61,16 @@ function load(e,t,n){if("js"==t){var a=document.createElement("script");a.src=e,
 </script>
 
 )=====";
+
+const char PAGE_logout[] PROGMEM = R"rawliteral(
+<!DOCTYPE HTML><html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <p>You have been logged out. Close all web browser tabs or <a href="/">sign back in</a>.</p>
+</body>
+</html>
+)rawliteral";
 
 #endif /* EN_PAGE_ADMIN_DE_H */

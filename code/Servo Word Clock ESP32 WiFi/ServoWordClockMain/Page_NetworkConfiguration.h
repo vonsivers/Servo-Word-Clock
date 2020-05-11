@@ -84,9 +84,27 @@ function load(e,t,n){if("js"==t){var a=document.createElement("script");a.src=e,
 
 
 
-const char PAGE_WaitAndReload[] PROGMEM = R"=====(
-Please Wait....Configuring and Restarting.
-)=====";
+const char PAGE_WaitAndRestart[] PROGMEM = R"rawliteral(
+<!DOCTYPE HTML><html>
+<head>
+  <meta http-equiv="refresh" content="0; URL=restart.html">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <p>WiFi configuration changed. Clock will restart.</p>
+  <p><strong>Please close tab or follow <a href="/">this link</a>.</strong></p>
+</body>
+</html>
+)rawliteral";
+
+
+// restart ESP
+void restart_ESP(AsyncWebServerRequest *request) {
+  if(!request->authenticate(http_username, http_password))
+        return request->requestAuthentication();
+  Serial.println("---------- restarting ESP -----------");
+  ESP.restart();
+}
 
 
 //
@@ -95,14 +113,10 @@ Please Wait....Configuring and Restarting.
 
 void send_network_configuration_html(AsyncWebServerRequest *request)
 {
+  if(!request->authenticate(http_username, http_password))
+        return request->requestAuthentication();
+        
   Serial.println(__FUNCTION__);
-
-  // trigger Wi-Fi network scan
-  int n = WiFi.scanComplete();
-  if (n == -2) {
-    Serial.println("\nScan start ... ");
-    WiFi.scanNetworks(true);
-  }
 
 	if (request->args() > 0 )  // Save Settings
 	{
@@ -112,16 +126,17 @@ void send_network_configuration_html(AsyncWebServerRequest *request)
       if (request->argName(i) == "ssid") config.ssid =   urldecode(request->arg(i));
 			if (request->argName(i) == "password") config.password =    urldecode(request->arg(i));
 		}
-		 request->send_P ( 200, "text/html", PAGE_WaitAndReload );
-		WriteConfig();
-		AdminTimeOutCounter=0;
-    delay(3000);
-    ESP.restart();            // restart ESP when WIFI setting changed
-    //startSTA();              // restart wifi in station mode
-    //startServer();            // restart webserver
+		request->send_P ( 200, "text/html", PAGE_WaitAndRestart );
+		WriteConfig();   
 	}
-	else
+	else                  // load website
 	{
+    // trigger Wi-Fi network scan
+    int n = WiFi.scanComplete();
+    if (n == -2) {
+      Serial.println("\nWiFi scan start ... ");
+      WiFi.scanNetworks(true);
+    }
 		request->send_P ( 200, "text/html", PAGE_NetworkConfiguration );
 	}
 	

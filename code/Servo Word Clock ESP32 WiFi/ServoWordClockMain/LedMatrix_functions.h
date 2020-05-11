@@ -38,8 +38,8 @@ CRGB leds[NUM_LEDS];
 // #define OE_PIN  33  // PCA9685 output enable pin (active low)
 
 // min/max position of servos
-const uint16_t SERVOMIN = 480;
-const uint16_t SERVOMAX = 790;
+const uint16_t SERVOMIN = 400;
+const uint16_t SERVOMAX = 700;
 
 // definition of words (row,column), rows and columns start counting from 0 in upper left corner
 //

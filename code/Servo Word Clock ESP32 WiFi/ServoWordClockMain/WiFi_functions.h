@@ -66,15 +66,13 @@ void startAP() {
     Serial.print("Wifi AP IP: "); Serial.println(WiFi.softAPIP());
 
     // allow access via http://servowordclock.local from inside network
-    /*
-    if (!MDNS.begin("ServoWordClock",WiFi.softAPIP())) {
+    if (!MDNS.begin("ServoWordClock")) {
         Serial.println("Error setting up MDNS responder!");
-        while(1) {
-            delay(1000);
-        }
     }
-    Serial.println("mDNS responder started");
-    */
+    else {
+      Serial.println("mDNS responder started");
+    }
+    
 }
 
 // start station mode
@@ -108,15 +106,13 @@ void startSTA() {
       
 
       // allow access via http://servowordclock.local from INSIDE network
-      /*
-      if (!MDNS.begin("ServoWordClock",WiFi.localIP())) {
+      if (!MDNS.begin("ServoWordClock")) {
         Serial.println("Error setting up MDNS responder!");
-        while(1) {
-            delay(1000);
-        }
-    }
-    Serial.println("mDNS responder started");
-    */
+      }
+      else {
+        Serial.println("mDNS responder started");
+      }
+   
     
   
 }
@@ -168,8 +164,18 @@ void reconnectSTA() {
 void startServer() {
   server.on ( "/", [](AsyncWebServerRequest *request) {
       Serial.println("admin.html");
+      if(!request->authenticate(http_username, http_password))
+        return request->requestAuthentication();
       request->send_P( 200, "text/html", PAGE_AdminMainPage); 
     }  );
+
+  server.on("/logout", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(401);
+  });
+
+  server.on("/logged-out", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/html", PAGE_logout);
+  });
 
     server.on ( "/favicon.ico",   [](AsyncWebServerRequest *request) {
       Serial.println("favicon.ico");
@@ -179,6 +185,8 @@ void startServer() {
         server.on ( "/config.html", send_network_configuration_html );
         server.on ( "/info.html", [](AsyncWebServerRequest *request) {
           Serial.println("info.html");
+          if(!request->authenticate(http_username, http_password))
+            return request->requestAuthentication();
           request->send_P ( 200, "text/html", PAGE_Information );
         }  );
         server.on ( "/ntp.html", send_NTP_configuration_html  );
@@ -202,6 +210,8 @@ void startServer() {
         server.on ( "/admin/displayvalues", send_display_settings_values_html );
         server.on ( "/admin/nightmode", send_night_mode_values_html );
         server.on ( "/admin/adminvalues", send_admin_settings_values_html );
+
+        server.on ( "/restart.html", restart_ESP );            // restart ESP when WIFI setting changed
 
     server.onNotFound ( [](AsyncWebServerRequest *request) {
       Serial.println("Page Not Found");

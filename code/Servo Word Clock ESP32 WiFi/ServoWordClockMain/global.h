@@ -52,6 +52,8 @@ bool date_ok = false;
 long absoluteActualTime, actualTime;
 long  customWatchdog;                     // WatchDog to detect main loop blocking. There is a builtin WatchDog to the chip firmare not related to this one
 
+const char* http_username = "clockadmin";      // login for webserver
+const char* http_password = "114servos";
 
 struct strConfig {
   boolean dhcp;                         // 1 Byte - EEPROM 16
@@ -192,7 +194,7 @@ void DefaultConfig() {
 
 void WriteConfig(){
 
-  Serial.println("Writing Config");
+  Serial.println("Writing Config ...");
   EEPROM.write(0, 'C');
   EEPROM.write(1, 'F');
   EEPROM.write(2, 'G');
@@ -247,6 +249,7 @@ void WriteConfig(){
   EEPROM.write(488, config.we_minute_end);
 
   EEPROM.commit();
+  Serial.println("Config Saved!");
 }
 
 void ClearConfig() {

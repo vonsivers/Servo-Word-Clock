@@ -94,6 +94,9 @@ function load(e,t,n){if("js"==t){var a=document.createElement("script");a.src=e,
 
 void send_display_settings_html(AsyncWebServerRequest *request)
 {
+  if(!request->authenticate(http_username, http_password))
+        return request->requestAuthentication();
+        
 	Serial.println("************************************");
 	Serial.println(request->args());
 
