@@ -23,6 +23,8 @@
 #ifndef LEDMATRIX_FUNCTIONS_H
 #define LEDMATRIX_FUNCTIONS_H
 
+#define FASTLED_INTERRUPT_RETRY_COUNT 1
+//#define FASTLED_ALLOW_INTERRUPTS 0
 #ifdef ESP32
   #define DATA_PIN    32
 #elif defined(ESP8266)
@@ -117,7 +119,7 @@ Adafruit_PWMServoDriver pwm7 = Adafruit_PWMServoDriver(&Wire, 0x46);
 Adafruit_PWMServoDriver pwm8 = Adafruit_PWMServoDriver(&Wire, 0x47);
 Adafruit_PWMServoDriver pwm9 = Adafruit_PWMServoDriver(&Wire, 0x48);
 Adafruit_PWMServoDriver pwm10 = Adafruit_PWMServoDriver(&Wire, 0x49);
-Adafruit_PWMServoDriver pwm11 = Adafruit_PWMServoDriver(&Wire, 0x4B);
+Adafruit_PWMServoDriver pwm11 = Adafruit_PWMServoDriver(&Wire, 0x4A);
 
 uint8_t hue_b = 0; // color of background LEDs
 uint8_t hue_w = 0; // color of words´
@@ -137,6 +139,9 @@ String currentMode;
 // counter for no Wifi animation
 int wifiAnimation = 0;                   
 long wifiMillis = 0;
+
+// boolean for NTP animation
+boolean ntpAnimation = 0;
 
 // counter for fade in/out
 uint8_t fade_counter = 0;
@@ -201,25 +206,35 @@ uint8_t hexToHue(String hex) {
 void initServos() {
   
   pwm1.begin();
-  pwm1.setPWMFreq(120);  
+  pwm1.setPWMFreq(120);
+  delay(100);  
   pwm2.begin();
-  pwm2.setPWMFreq(120);  
+  pwm2.setPWMFreq(120);
+  delay(100);   
   pwm3.begin();
-  pwm3.setPWMFreq(120);  
+  pwm3.setPWMFreq(120);
+  delay(100);   
   pwm4.begin();
-  pwm4.setPWMFreq(120);  
+  pwm4.setPWMFreq(120);
+  delay(100);   
   pwm5.begin();
-  pwm5.setPWMFreq(120);  
+  pwm5.setPWMFreq(120);
+  delay(100);   
   pwm6.begin();
-  pwm6.setPWMFreq(120);  
+  pwm6.setPWMFreq(120); 
+  delay(100);  
   pwm7.begin();
-  pwm7.setPWMFreq(120);  
+  pwm7.setPWMFreq(120);
+  delay(100);   
   pwm8.begin();
   pwm8.setPWMFreq(120);
+  delay(100); 
   pwm9.begin();
   pwm9.setPWMFreq(120);
+  delay(100); 
   pwm10.begin();
   pwm10.setPWMFreq(120);
+  delay(100); 
   pwm11.begin();
   pwm11.setPWMFreq(120);
 
@@ -972,20 +987,29 @@ void LED_no_wifi() {
 //
 void LED_no_ntp() {
 
+  if (!ntpAnimation) {
   uint8_t hue = 96;
+  FastLED.clear();
+  lightupSym(clockSym,sizeof(clockSym)/sizeof(clockSym[0]),hue);
+  FastLED.show();
+  ntpAnimation = true;
+  }
+
+  /*
   lightupSymBrightness(clockSym,sizeof(clockSym)/sizeof(clockSym[0]),hue,fade_counter);
     fade_counter += fade_increment;
 
             if(fade_counter==255) {
-              fade_increment = -1;   
+              fade_increment = -10;   
             }
             else if(fade_counter==0) {
-              fade_increment = 1;
+              fade_increment = 10;
             }
-            FastLED.delay(1);
+            // insert a delay to keep the framerate modest
+            FastLED.delay(1000/FRAMES_PER_SECOND);
             clearLEDs();
             FastLED.show();
-
+*/
   /*
 if(millis()-ntpMillis>1000) {
   FastLED.clear();

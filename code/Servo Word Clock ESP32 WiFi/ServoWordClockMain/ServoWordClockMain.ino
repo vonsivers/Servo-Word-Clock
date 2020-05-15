@@ -20,7 +20,6 @@
     Copyright 2019 Moritz v. Sivers
  */
 
-#define FASTLED_INTERRUPT_RETRY_COUNT 1
 #include <FastLED.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
@@ -188,6 +187,7 @@ void loop() {
 	  if  (WIFI_connected != WL_CONNECTED and manual_time_set == false) {
 		  config.Update_Time_Via_NTP_Every =  0;
 		  LED_no_wifi();
+      ntpAnimation = false;
 	  }
 	  else if (ntp_response_ok == false and manual_time_set == false) {
 		  config.Update_Time_Via_NTP_Every =  1;
@@ -200,6 +200,7 @@ void loop() {
         reconnectSTA();
         startServer();
       }
+      ntpAnimation = false;
 	  }
 	  
 }
