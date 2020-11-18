@@ -1,0 +1,25 @@
+.home {
+    padding: 74px 20px;
+    min-height: 100%;
+    width: 100%;
+}
+
+.card {
+    margin-bottom: 16px;
+}
+
+.cardHeader {
+    padding: 0px 16px;
+}
+
+.cardBody {
+    padding: 4px 16px;
+}
+
+.contentEnd {
+    justify-content: flex-end;
+}
+
+.icon {
+    margin-right: 10px;
+}

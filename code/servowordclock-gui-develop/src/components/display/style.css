@@ -1,0 +1,17 @@
+.display {
+    padding: 56px 20px;
+    min-height: 100%;
+    width: 100%;
+}
+
+.control {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.textRight {
+    text-align: right;
+}
+input[type="color"] {
+    width: 100%;
+}
