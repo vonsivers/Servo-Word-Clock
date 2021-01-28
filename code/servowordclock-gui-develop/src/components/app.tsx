@@ -1,5 +1,5 @@
 import { h, Component } from "preact";
-import { Router } from "preact-router";
+import { route, Router } from "preact-router";
 
 import Constants from "../Constants";
 import Home from "./home";
@@ -7,17 +7,11 @@ import Wifi from "./wifi";
 import Display from "./display";
 import NightMode from "./night-mode";
 import TimeSettings from "./time-settings";
-import NotFoundPage from "./notfound";
 import Header from "./header";
 import { createHashHistory } from "history";
-import {
-    SWCClient,
-    NightModeSettings,
-    DisplayEffectsSettings
-} from "../domain/SWCClient";
-import LinearProgress from "preact-material-components/LinearProgress";
-import "preact-material-components/LinearProgress/style.css";
+import { SWCClient } from "../domain/SWCClient";
 import { Auth } from "../domain/apiUtils";
+import Login from "./login";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 if ((module as any).hot) {
@@ -27,38 +21,15 @@ if ((module as any).hot) {
 
 class App extends Component<Props, State> {
     state: State = {
-        currentRoute: Constants.routes.Home,
+        currentRoute: Constants.routes.Login,
         auth: {
-            login: "114servos",
-            onNoAuth: () => alert("no auth")
+            key: "",
+            onNoAuth: () => route(Constants.routes.Login)
         }
     };
     client = new SWCClient(this.state.auth);
 
-    componentDidMount() {
-		
-        this.client
-            .getDisplayEffectsSettings()
-            .then(displayEffectsSettings =>
-                this.setState({ displayEffectsSettings })
-            );
-        this.client
-            .getNightModeSettings()
-            .then(nightModeSettings => this.setState({ nightModeSettings }));
-    }
-
     render() {
-        if (
-            !this.state.displayEffectsSettings ||
-            !this.state.nightModeSettings
-        ) {
-            return (
-                <div>
-                    <LinearProgress indeterminate />
-                </div>
-            );
-        }
-
         return (
             <div id="app">
                 <Header currentRoute={this.state.currentRoute} />
@@ -66,7 +37,7 @@ class App extends Component<Props, State> {
                     onChange={e => this.setState({ currentRoute: e.url })}
                     history={createHashHistory()}
                 >
-                    <Home path={Constants.routes.Home} />
+                    <Home path={Constants.routes.Home} client={this.client} />
                     <Wifi path={Constants.routes.Wifi} client={this.client} />
                     <TimeSettings
                         path={Constants.routes.TimeSettings}
@@ -75,14 +46,12 @@ class App extends Component<Props, State> {
                     <Display
                         path={Constants.routes.Display}
                         client={this.client}
-                        settings={this.state.displayEffectsSettings}
                     />
                     <NightMode
                         path={Constants.routes.NightMode}
                         client={this.client}
-                        settings={this.state.nightModeSettings}
                     />
-                    <NotFoundPage default />
+                    <Login default client={this.client} />
                 </Router>
             </div>
         );
@@ -90,10 +59,8 @@ class App extends Component<Props, State> {
 }
 
 interface State {
-    nightModeSettings?: NightModeSettings;
-    displayEffectsSettings?: DisplayEffectsSettings;
     currentRoute: string;
-    auth: Auth
+    auth: Auth;
 }
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props {}

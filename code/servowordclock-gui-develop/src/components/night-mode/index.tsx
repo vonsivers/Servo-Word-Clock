@@ -34,10 +34,13 @@ class NightMode extends Component<Props, State> {
         this.props.client
             .getNightMode()
             .then(config => this.setState({ config }));
+        this.props.client
+            .getNightModeSettings()
+            .then(settings => this.setState({ settings }));
     }
 
     render() {
-        if (!this.state.config) {
+        if (!this.state.config || !this.state.settings) {
             return (
                 <div>
                     <LinearProgress indeterminate />
@@ -53,7 +56,7 @@ class NightMode extends Component<Props, State> {
                 <h1>Night mode</h1>
                 <div>
                     {this.renderRadio("disabled")}
-                    {this.props.settings.mode_type.map(t =>
+                    {this.state.settings.mode_type.map(t =>
                         this.renderRadio(t)
                     )}
                 </div>
@@ -140,10 +143,10 @@ class NightMode extends Component<Props, State> {
 
 interface State {
     config?: Config;
+    settings?: NightModeSettings;
 }
 interface Props {
     client: SWCClient;
-    settings: NightModeSettings;
 }
 
 export default NightMode;

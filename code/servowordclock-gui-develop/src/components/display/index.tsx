@@ -32,10 +32,13 @@ class Display extends Component<Props, State> {
         this.props.client
             .getDisplayEffects()
             .then(config => this.setState({ config }));
+        this.props.client
+            .getDisplayEffectsSettings()
+            .then(settings => this.setState({ settings }));
     }
 
     render() {
-        if (!this.state.config) {
+        if (!this.state.config || !this.state.settings) {
             return (
                 <div>
                     <LinearProgress indeterminate />
@@ -52,29 +55,29 @@ class Display extends Component<Props, State> {
                 {this.renderSelect(
                     "effect_hour",
                     "Hour effect",
-                    this.props.settings.effect_type
+                    this.state.settings.effect_type
                 )}
                 {this.renderSelect(
                     "effect_5minute",
                     "5 minute effect",
-                    this.props.settings.effect_type
+                    this.state.settings.effect_type
                 )}
                 {this.renderSelect(
                     "color_mode_dot",
                     "Dot color mode",
-                    this.props.settings.color_mode_dot_type
+                    this.state.settings.color_mode_dot_type
                 )}
                 {this.renderColor("color_mode_dot", "Dot color")}
                 {this.renderSelect(
                     "color_mode_word",
                     "Word color mode",
-                    this.props.settings.color_mode_word_type
+                    this.state.settings.color_mode_word_type
                 )}
                 {this.renderColor("color_mode_word", "Word color")}
                 {this.renderSelect(
                     "color_mode_background",
                     "Background color mode",
-                    this.props.settings.color_mode_background_type
+                    this.state.settings.color_mode_background_type
                 )}
                 {this.renderColor("color_mode_background", "Background color")}
                 <div class={style.textRight}>
@@ -146,10 +149,10 @@ class Display extends Component<Props, State> {
 
 interface Props {
     client: SWCClient;
-    settings: DisplayEffectsSettings;
 }
 interface State {
     config?: Config;
+    settings?: DisplayEffectsSettings;
 }
 
 export default Display;

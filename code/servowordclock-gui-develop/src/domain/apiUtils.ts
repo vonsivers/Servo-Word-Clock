@@ -1,42 +1,66 @@
 import { baseApiUrl } from "../Constants";
 
-export interface Auth{
+export interface Auth {
     onNoAuth: () => void;
-    login: string;
+    key: string;
 }
 
-export function apiPostFormData<TResult>(
+export function apiPostFormData(
     route: string,
     input: object,
-	auth: Auth
-): Promise<{}> {
+    auth: Auth
+): Promise<Response> {
     const body = new FormData();
     for (const key in input) {
         body.append(key, input[key]?.toString() ?? null);
     }
-	body.append("login", auth.login);
+    body.append("key", auth.key);
     return new Promise((resolve, reject) => {
-		fetch(`${baseApiUrl}${route}`, {
-			method: "post",
-			body,
-			credentials: "include"
-		}).then(response => {
-			if(response.status == 403) {
-				auth.onNoAuth()
-			}else{
-				resolve(response);
-			}
-		})
-            .catch(reject);	
-	});
+        fetch(`${baseApiUrl}${route}`, {
+            method: "post",
+            body,
+            credentials: "include"
+        })
+            .then(response => {
+                if (response.status == 403) {
+                    auth.onNoAuth();
+                } else {
+                    resolve(response);
+                }
+            })
+            .catch(reject);
+    });
+}
+
+export function apiPostLogin(
+    route: string,
+    login: string
+): Promise<string | undefined> {
+    const body = new FormData();
+    body.append("login", login);
+    return new Promise((resolve, reject) => {
+        fetch(`${baseApiUrl}${route}`, {
+            method: "post",
+            body,
+            credentials: "include"
+        })
+            .then(response => {
+                if (response.status == 403) {
+                    resolve(undefined);
+                } else {
+                    resolve(response.text());
+                }
+            })
+            .catch(reject);
+    });
 }
 
 export function apiGetParsed<TResult>(
-	route: string,
-	auth: Auth
+    route: string,
+    auth: Auth
 ): Promise<TResult> {
     return new Promise((resolve, reject) => {
-        fetch(`${baseApiUrl}${route}?login=${auth.login}`, {
+        fetch(`${baseApiUrl}${route}?key=${auth.key}`, {
             headers: { "Content-Type": "text/plain" },
             method: "get",
             credentials: "include"
@@ -57,8 +81,8 @@ export function apiGetParsed<TResult>(
                             resolve(result);
                         })
                         .catch(reject);
-				} else if(response.status == 403) {
-					auth.onNoAuth()
+                } else if (response.status == 403) {
+                    auth.onNoAuth();
                 } else {
                     reject(response);
                 }

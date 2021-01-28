@@ -7,6 +7,7 @@ import * as style from "./style.css";
 import { route } from "preact-router";
 import Constants from "../../Constants";
 import Icon from "preact-material-components/Icon";
+import { SWCClient } from "../../domain/SWCClient";
 
 const renderCard = (
     title: string,
@@ -36,7 +37,12 @@ const renderCard = (
     </Card>
 );
 
-const Home: FunctionalComponent = () => {
+const Home: FunctionalComponent<Props> = (props: Props) => {
+    if (!props.client.auth.key) {
+        route(Constants.routes.Login);
+        return null;
+    }
+
     return (
         <div class={style.home}>
             {renderCard(
@@ -66,5 +72,9 @@ const Home: FunctionalComponent = () => {
         </div>
     );
 };
+
+interface Props {
+    client: SWCClient;
+}
 
 export default Home;
