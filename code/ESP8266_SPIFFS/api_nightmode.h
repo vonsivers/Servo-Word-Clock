@@ -56,8 +56,10 @@ void api_nightmode_get(AsyncWebServerRequest *request) {
 
 void api_nightmode(AsyncWebServerRequest *request)
 {
-  if((request->hasParam("login") && request->getParam("login")->value() == config.login) || (request->hasParam("login",true) && request->getParam("login",true)->value() == config.login)){
-  	if(request->method() == HTTP_POST) {
+    if(
+      (request->hasParam("key") && checkLogin(request->getParam("key")->value())) ||
+      (request->hasParam("key",true) && checkLogin(request->getParam("key", true)->value()))
+    ){  	if(request->method() == HTTP_POST) {
   		api_nightmode_post(request);
   	}
   	else {
