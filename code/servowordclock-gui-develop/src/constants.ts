@@ -1,10 +1,11 @@
 const Constants = {
     routes: {
-        Home: "/",
+        Home: "/home",
         Wifi: "/wifi/",
         TimeSettings: "/time-settings/",
         Display: "/display/",
-        NightMode: "/night-mode/"
+        NightMode: "/night-mode/",
+        Login: "/"
     }
 };
 
@@ -15,6 +16,6 @@ export function sanitizeTime(input: string): string {
         .join(":");
 }
 
-export const baseApiUrl = "http://192.168.1.47/api/";
+export const baseApiUrl = "http://192.168.3.141/api/";
 
 export default Constants;

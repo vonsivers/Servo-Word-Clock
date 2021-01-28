@@ -29,8 +29,6 @@ class Header extends Component<Props, State> {
     }
 
     render() {
-        console.log("this.props.currentRoute", this.props.currentRoute);
-
         return (
             <div>
                 <TopAppBar className="topappbar" onNav={null}>

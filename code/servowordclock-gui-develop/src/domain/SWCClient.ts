@@ -1,11 +1,24 @@
-import { apiGetParsed, apiPostFormData, Auth } from "./apiUtils";
+import { resolveConfig } from "prettier";
+import { apiGetParsed, apiPostFormData, apiPostLogin, Auth } from "./apiUtils";
 
 export class SWCClient {
     auth: Auth;
-    constructor(auth: Auth){
+    constructor(auth: Auth) {
         this.auth = auth;
     }
-	
+
+    public login(login: string): Promise<boolean> {
+        return apiPostLogin("login", login).then(result => {
+            if (result) {
+                this.auth.key = result;
+                return true;
+            } else {
+                this.auth.key = undefined;
+                return false;
+            }
+        });
+    }
+
     public getTimeSettings(): Promise<TimeSettings> {
         return apiGetParsed("timesettings", this.auth);
     }
@@ -37,8 +50,22 @@ export class SWCClient {
     public getNightModeSettings(): Promise<NightModeSettings> {
         return apiGetParsed("nightmode/settings", this.auth);
     }
-}
 
+    public getWifi(): Promise<Wifi> {
+        return apiGetParsed("wifi", this.auth);
+    }
+
+    public setWifi(payload: Wifi): Promise<{}> {
+        return apiPostFormData("wifi", payload, this.auth);
+    }
+
+    public getWifiSettings(): Promise<WifiSettings> {
+        return apiGetParsed("wifisettings", this.auth);
+    }
+}
+export interface Login {
+    login: string;
+}
 export interface TimeSettings {
     mode: TimeSettingsMode; // (0 = timezone, 1 = manual)
     timezone: string; // = (0-23) [wenn mode = 0]
@@ -63,7 +90,11 @@ export interface DisplayEffectsSettings {
     color_mode_word_type: string[]; // = (string, string, ....)
     color_mode_background_type: string[]; // = (string, string, ....)
 }
-
+export interface Wifi {
+    ssid: string;
+    password: string;
+    state: string;
+}
 export interface NightMode {
     mode: string; // (disabled, mode_type...)
     weekday_start: string; //:string, // (time) [wenn mode != 0]
@@ -73,4 +104,7 @@ export interface NightMode {
 }
 export interface NightModeSettings {
     mode_type: string[]; // = (string, string, ....) ohne disabled
+}
+export interface WifiSettings {
+    [ssid: string]: string[]; // signal-strength, secure
 }
