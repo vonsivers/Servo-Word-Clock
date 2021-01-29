@@ -1,5 +1,6 @@
 import { resolve } from "path";
 import webpack from "webpack";
+import envVars from 'preact-cli-plugin-env-vars';
 
 export default {
     /**
@@ -40,7 +41,8 @@ export default {
             "index"
         );
         
-		
+        envVars(config, env, helpers);
+
 		// config.plugins.push(new webpack.optimize.LimitChunkCountPlugin({
         //     maxChunks: 1
         //   }))

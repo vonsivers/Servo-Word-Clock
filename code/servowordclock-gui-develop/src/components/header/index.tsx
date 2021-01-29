@@ -7,6 +7,7 @@ import "preact-material-components/Drawer/style.css";
 import "preact-material-components/List/style.css";
 import "preact-material-components/TopAppBar/style.css";
 import { route } from "preact-router";
+import * as style from "./style.css";
 
 interface State {
     isDrawerOpen: boolean;
@@ -14,6 +15,7 @@ interface State {
 
 interface Props {
     currentRoute: string;
+    isLoggedIn: boolean;
 }
 
 class Header extends Component<Props, State> {
@@ -31,10 +33,11 @@ class Header extends Component<Props, State> {
     render() {
         return (
             <div>
-                <TopAppBar className="topappbar" onNav={null}>
+                <TopAppBar class={style.header} onNav={null}>
                     <TopAppBar.Row>
                         <TopAppBar.Section align-start>
                             <TopAppBar.Icon
+                                class={style.icon}
                                 onClick={() => {
                                     this.setState({
                                         isDrawerOpen: !this.state.isDrawerOpen
@@ -49,7 +52,7 @@ class Header extends Component<Props, State> {
                 </TopAppBar>
                 <Drawer
                     modal
-                    open={this.state.isDrawerOpen}
+                    open={this.state.isDrawerOpen && this.props.isLoggedIn}
                     onClose={() => {
                         this.setState({ isDrawerOpen: false });
                     }}
@@ -80,6 +83,11 @@ class Header extends Component<Props, State> {
                             `notifications_paused`,
                             Constants.routes.NightMode
                         )}
+                        {this.renderDrawerItem(
+                            `Change password`,
+                            `vpn_key`,
+                            Constants.routes.ChangePassword
+                        )}
                     </Drawer.DrawerContent>
                 </Drawer>
             </div>
@@ -89,6 +97,7 @@ class Header extends Component<Props, State> {
     private renderDrawerItem(title: string, icon: string, routePath: string) {
         return (
             <Drawer.DrawerItem
+                class={style.drawer}
                 selected={this.props.currentRoute === routePath}
                 onClick={() => {
                     this.route(routePath);

@@ -1,7 +1,8 @@
 import { baseApiUrl } from "../Constants";
 
 export interface Auth {
-    onNoAuth: () => void;
+    onAccessDenied: () => void;
+    onSuccess: () => void;
     key: string;
 }
 
@@ -23,8 +24,9 @@ export function apiPostFormData(
         })
             .then(response => {
                 if (response.status == 403) {
-                    auth.onNoAuth();
+                    auth.onAccessDenied();
                 } else {
+                    auth.onSuccess();
                     resolve(response);
                 }
             })
@@ -51,7 +53,10 @@ export function apiPostLogin(
                     resolve(response.text());
                 }
             })
-            .catch(reject);
+            .catch(res => {
+                console.warn("error on login", res);
+                resolve(undefined);
+            });
     });
 }
 
@@ -82,8 +87,9 @@ export function apiGetParsed<TResult>(
                         })
                         .catch(reject);
                 } else if (response.status == 403) {
-                    auth.onNoAuth();
+                    auth.onAccessDenied();
                 } else {
+                    auth.onSuccess();
                     reject(response);
                 }
             })

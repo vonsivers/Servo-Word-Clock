@@ -24,12 +24,10 @@ class Login extends Component<Props, State> {
         return (
             <div class={style.login}>
                 <h1>Login</h1>
-                <div>
-                    <label htmlFor="login">Login</label>
+                <p>
+                    <label htmlFor="login">Password</label>
                     <TextField
                         id="login"
-                        label="Login"
-                        helperText="Your login"
                         class={style.full}
                         value={this.state.login}
                         onChange={e =>
@@ -38,9 +36,9 @@ class Login extends Component<Props, State> {
                             })
                         }
                     />
-                </div>
+                </p>
                 {this.state.loginFailed && (
-                    <div style={style.loginFailed}>Login failed</div>
+                    <div class={style.loginFailed}>Login failed</div>
                 )}
                 <div class={style.textRight}>
                     <Button onClick={() => this.onClickLogin()}>Login</Button>
