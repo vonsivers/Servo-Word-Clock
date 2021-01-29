@@ -12,4 +12,5 @@ Wordclock controlled by 114 servos. Improved version 2
 
 ## Links
 [Hackaday.io project link](https://hackaday.io/project/166546-servo-controlled-word-clock-v2)
+
 [Version 1 Instructables project link](https://www.instructables.com/Word-Clock-Controlled-by-114-Servos/)
