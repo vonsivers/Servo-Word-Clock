@@ -3,7 +3,7 @@
 
 Allows control of clock via webserver that runs on ESP. Programmed using Arduino IDE.
 
-![](clock.jpg)
+![](GUI.png)
 
 ## Code Upload
 
@@ -14,10 +14,4 @@ Upload to ESP using Arduino IDE
 ## Code Manual
 
 see Manual.pdf 
-
-## BoM
-...
-
-## Detailed Build Instructions
-...
 
