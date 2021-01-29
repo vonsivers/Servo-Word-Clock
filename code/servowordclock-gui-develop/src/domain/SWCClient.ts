@@ -3,8 +3,41 @@ import { apiGetParsed, apiPostFormData, apiPostLogin, Auth } from "./apiUtils";
 
 export class SWCClient {
     auth: Auth;
-    constructor(auth: Auth) {
-        this.auth = auth;
+    keepAliveTimeoutHandle: number | undefined;
+    constructor(onAccessDenied: () => void) {
+        this.auth = {
+            key: "",
+            onAccessDenied: () => {
+                this.removeKeepAlive();
+                onAccessDenied();
+            },
+            onSuccess: () => {
+                this.assureKeepAlive();
+            }
+        };
+    }
+
+    private removeKeepAlive() {
+        if (this.keepAliveTimeoutHandle) {
+            window.clearTimeout(this.keepAliveTimeoutHandle);
+        }
+    }
+    private assureKeepAlive() {
+        if (!this.keepAliveTimeoutHandle) {
+            this.keepAlive();
+        }
+    }
+
+    private keepAlive() {
+        this.keepAliveTimeoutHandle = window.setTimeout(
+            this.keepAlive.bind(this),
+            5 * 60 * 1000
+        );
+        apiGetParsed<KeepAlive>("login", this.auth).then(auth => {
+            if (auth && Object.keys(auth).length) {
+                this.auth.key = Object.keys(auth)[0];
+            }
+        });
     }
 
     public login(login: string): Promise<boolean> {
@@ -17,6 +50,10 @@ export class SWCClient {
                 return false;
             }
         });
+    }
+
+    public setPassword(payload: ChangePassword): Promise<{}> {
+        return apiPostFormData("changepwd", payload, this.auth);
     }
 
     public getTimeSettings(): Promise<TimeSettings> {
@@ -66,6 +103,9 @@ export class SWCClient {
 export interface Login {
     login: string;
 }
+export interface ChangePassword {
+    newlogin: string;
+}
 export interface TimeSettings {
     mode: TimeSettingsMode; // (0 = timezone, 1 = manual)
     timezone: string; // = (0-23) [wenn mode = 0]
@@ -107,4 +147,7 @@ export interface NightModeSettings {
 }
 export interface WifiSettings {
     [ssid: string]: string[]; // signal-strength, secure
+}
+interface KeepAlive {
+    [auth: string]: []; //empty
 }

@@ -5,6 +5,7 @@ const Constants = {
         TimeSettings: "/time-settings/",
         Display: "/display/",
         NightMode: "/night-mode/",
+        ChangePassword: "/change-password",
         Login: "/"
     }
 };
@@ -16,6 +17,6 @@ export function sanitizeTime(input: string): string {
         .join(":");
 }
 
-export const baseApiUrl = "http://192.168.3.141/api/";
+export const baseApiUrl = process.env.PREACT_APP_API_BASE_PATH || "";
 
 export default Constants;

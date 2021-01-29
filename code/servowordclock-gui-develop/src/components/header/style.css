@@ -5,7 +5,7 @@
     width: 100%;
     height: 56px;
     padding: 0;
-    background: #673ab7;
+    background: #171a3f;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
     z-index: 50;
 }
@@ -45,4 +45,11 @@
 
 .header nav a.active {
     background: rgba(0, 0, 0, 0.4);
+}
+
+.icon {
+    cursor: pointer;
+}
+.drawer {
+    cursor: pointer;
 }

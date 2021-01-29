@@ -10,8 +10,8 @@ import TimeSettings from "./time-settings";
 import Header from "./header";
 import { createHashHistory } from "history";
 import { SWCClient } from "../domain/SWCClient";
-import { Auth } from "../domain/apiUtils";
 import Login from "./login";
+import ChangePassword from "./change-password";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 if ((module as any).hot) {
@@ -22,19 +22,28 @@ if ((module as any).hot) {
 class App extends Component<Props, State> {
     state: State = {
         currentRoute: Constants.routes.Login,
-        auth: {
-            key: "",
-            onNoAuth: () => route(Constants.routes.Login)
-        }
+        isLoggedIn: false
     };
-    client = new SWCClient(this.state.auth);
+    client = new SWCClient(this.onAccessDenied.bind(this));
+
+    private onAccessDenied() {
+        route(Constants.routes.Login);
+    }
 
     render() {
         return (
             <div id="app">
-                <Header currentRoute={this.state.currentRoute} />
+                <Header
+                    currentRoute={this.state.currentRoute}
+                    isLoggedIn={this.state.isLoggedIn}
+                />
                 <Router
-                    onChange={e => this.setState({ currentRoute: e.url })}
+                    onChange={e =>
+                        this.setState({
+                            currentRoute: e.url,
+                            isLoggedIn: Boolean(this.client.auth.key)
+                        })
+                    }
                     history={createHashHistory()}
                 >
                     <Home path={Constants.routes.Home} client={this.client} />
@@ -51,7 +60,11 @@ class App extends Component<Props, State> {
                         path={Constants.routes.NightMode}
                         client={this.client}
                     />
-                    <Login default client={this.client} />
+                    <ChangePassword
+                        path={Constants.routes.ChangePassword}
+                        client={this.client}
+                    />
+                    <Login path={Constants.routes.Login} client={this.client} />
                 </Router>
             </div>
         );
@@ -60,7 +73,7 @@ class App extends Component<Props, State> {
 
 interface State {
     currentRoute: string;
-    auth: Auth;
+    isLoggedIn: boolean;
 }
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props {}

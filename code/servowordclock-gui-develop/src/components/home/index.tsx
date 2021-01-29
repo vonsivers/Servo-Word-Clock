@@ -69,6 +69,12 @@ const Home: FunctionalComponent<Props> = (props: Props) => {
                 `notifications_paused`,
                 Constants.routes.NightMode
             )}
+            {renderCard(
+                `Change password`,
+                `Change your login password`,
+                `vpn_key`,
+                Constants.routes.ChangePassword
+            )}
         </div>
     );
 };

@@ -1,4 +1,4 @@
-.login {
+.changePassword {
     padding: 56px 20px;
     min-height: 100%;
     width: 100%;
@@ -12,6 +12,6 @@
     text-align: right;
 }
 
-.loginFailed {
+.error {
     color: #ff3333;
 }
