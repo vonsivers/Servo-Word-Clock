@@ -161,7 +161,7 @@ void DefaultConfig() {
     config.timeMode = "internet";   
     config.timeZone = 10;
     config.ssid = "ServoWordClock-" + String(chipID,HEX);       
-    config.password = "" ;
+    config.password = "";
     config.wcolor = "#ff0000";
     config.bcolor = "#ff0000";
     config.dcolor = "#ff0000";

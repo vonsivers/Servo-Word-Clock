@@ -25,6 +25,7 @@
 #include "api_displayeffects.h"
 #include "api_wifi.h"
 #include "api_wifisettings.h"
+#include "api_changepwd.h"
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -66,6 +67,9 @@ void setup(){
 
   // Route for root / web page
   server.on("/api/login", api_login);
+
+  // Route for root / web page
+  server.on("/api/changepwd", api_changepwd);
 
   // Route for root / web page
   server.on("/api/timesettings", api_timesettings);

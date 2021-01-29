@@ -6,10 +6,6 @@ void api_login_post(AsyncWebServerRequest *request) {
   
   Serial.println(__FUNCTION__);
 
-  if(request->hasParam("newlogin",true) && !request->getParam("newlogin",true)->value().isEmpty()){
-	  config.login = request->getParam("newlogin",true)->value();
-	  WriteConfig();
-  }
   loginkey = createRandString();
   logintimestamp = millis();
   request->send(200, "text/plain", loginkey);
@@ -21,6 +17,9 @@ void api_login(AsyncWebServerRequest *request)
 	  if(request->getParam("login",true)->value() == config.login){
 			api_login_post(request);
 		}
+    else {
+      request->send (403,"text/plain", "Access Denied!");
+    }
 	}
 	else{
     if(

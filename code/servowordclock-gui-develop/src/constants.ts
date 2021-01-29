@@ -16,6 +16,6 @@ export function sanitizeTime(input: string): string {
         .join(":");
 }
 
-export const baseApiUrl = "http://192.168.3.141/api/";
+export const baseApiUrl = "/api/";
 
 export default Constants;
