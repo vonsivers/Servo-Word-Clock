@@ -16,6 +16,7 @@
 #include <FS.h>
 #include <TimeLib.h>
 #include <EEPROM.h>
+#include <Ticker.h>
 
 #include "global.h"
 #include "api_login.h"
@@ -35,10 +36,17 @@ void setup(){
   // define an EEPROM space of 512 Bytes to store data
   EEPROM.begin(512); 
 
+  randomSeed(analogRead(0));    // Seed RNG
+
+  delay(1000);
+
   // just for testing clear EEPROM before start -> TO BE REMOVED!
  ClearConfig();
 
  DefaultConfig();
+
+ // create random login key
+ loginkey = createRandString();
 
   // Initialize SPIFFS
   if(!SPIFFS.begin()){
@@ -57,7 +65,7 @@ void setup(){
   Serial.println(WiFi.localIP());
 
   // Route for root / web page
-  server.on("/api/api_login", api_login);
+  server.on("/api/login", api_login);
 
   // Route for root / web page
   server.on("/api/timesettings", api_timesettings);
@@ -152,6 +160,15 @@ void setup(){
 
 
   // Start server
+  DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "http://localhost:8080");   // avoids CORS error when GUI is running on localhost
+  DefaultHeaders::Instance().addHeader("Access-Control-Allow-Credentials", "true");
+  server.onNotFound([](AsyncWebServerRequest *request) {
+    if (request->method() == HTTP_OPTIONS) {
+      request->send(200);
+    } else {
+      request->send(404);
+    }
+  });
   server.begin();
 }
  

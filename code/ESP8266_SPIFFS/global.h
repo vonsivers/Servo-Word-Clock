@@ -27,6 +27,10 @@ time_t currentTime;                       // variable for current time
 long Update_Time_Via_NTP_Every = 180;     // update interval for NTP time (seconds)
 String ntpServerName = "pool.ntp.org";    // NTP server
 bool updateDisplay = false;               // set to true if display needs update
+String loginkey;                          // random login key
+long logintimestamp;                      // time of last correct login
+
+static Ticker deferred;       // needed to delay ESP restart in api_wifi.h
 
 // ESP chip ID
 #ifdef ESP32
@@ -64,6 +68,40 @@ struct strConfig {
   uint8_t we_minute_end;                // 1 Byte - EEPROM 256
   String login;                         // up to 32 Byte - EEPROM 257
 } config;
+
+// create random string for login
+String createRandString() {
+  
+  byte randomValue;
+  char msg[32];     // Keep in mind SRAM limits
+  int numBytes = 32;
+ 
+  //memset(msg, 0, sizeof(msg));
+  for(int i = 0; i < numBytes-1; i++) {
+    randomValue = random(0, 36);
+    if(randomValue < 10){
+      msg[i] = randomValue + '0';
+    }else{
+      msg[i] = (randomValue - 10) + 'a';
+    }
+  }
+  msg[numBytes-1] = '\0';  // add termination character
+  String str(msg);
+  Serial.println("Here is your random string: ");
+  Serial.println(str); 
+  return str;
+}
+
+// returns false if nonew login in the last 10 minutes
+bool checkLogin(String key) {
+  if(key==loginkey) {
+    if((millis()-logintimestamp)<10*60*1000) {
+      logintimestamp = millis();
+      return true;
+    }
+  }
+  return false;
+}
 
 //  Auxiliar function to handle EEPROM
 
