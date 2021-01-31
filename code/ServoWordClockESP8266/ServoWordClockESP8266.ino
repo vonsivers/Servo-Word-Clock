@@ -92,12 +92,12 @@ void setup(){
   });
   
   // Route to load style.css file
-  server.on("/bundle.f40a7.css", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/bundle.css", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/bundle.css", "text/css");
   });
 
   // Route to 
-  server.on("/bundle.c18db.js", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/bundle.js", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/bundle.js", "application/javascript");
   });
 
@@ -112,14 +112,14 @@ void setup(){
   });
 
   // Route to 
-  server.on("/polyfills.ac517.js", HTTP_GET, [](AsyncWebServerRequest *request){   
+  server.on("/polyfills.js", HTTP_GET, [](AsyncWebServerRequest *request){   
     request->send(SPIFFS, "/polyfills.js", "application/javascript");
   });
 
   // Route to 
-  server.on("precache-manifest.js", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "/precache-manifest.js", "application/javascript");
-  });
+  // server.on("precache-manifest.js", HTTP_GET, [](AsyncWebServerRequest *request){   
+    // request->send(SPIFFS, "/precache-manifest.js", "application/javascript");
+  // });
 
   // Route to 
   server.on("sw.js", HTTP_GET, [](AsyncWebServerRequest *request){   
@@ -130,34 +130,38 @@ void setup(){
   server.on("assets/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){   
     request->send(SPIFFS, "assets/favicon.ico", "image/x-icon");
   });
-
   // Route to 
-  server.on("assets/icons/i-192x192.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "assets/i-192x192.png", "image/png");
+  server.on("assets/materialIcons.woff2", HTTP_GET, [](AsyncWebServerRequest *request){   
+    request->send(SPIFFS, "assets/materialIcons.woff2", "font/woff2");
   });
 
   // Route to 
-  server.on("assets/icons/i-512x512.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "assets/i-512x512.png", "image/png");
+  server.on("assets/android-192x192.png", HTTP_GET, [](AsyncWebServerRequest *request){   
+    request->send(SPIFFS, "assets/android-192x192.png", "image/png");
   });
 
   // Route to 
-  server.on("assets/icons/apple-touch-icon.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "assets/apple-touch-icon.png", "image/png");
+  server.on("assets/android-512x512.png", HTTP_GET, [](AsyncWebServerRequest *request){   
+    request->send(SPIFFS, "assets/android-512x512.png", "image/png");
   });
 
   // Route to 
-  server.on("assets/icons/favicon-16x16.png", HTTP_GET, [](AsyncWebServerRequest *request){   
+  server.on("assets/apple.png", HTTP_GET, [](AsyncWebServerRequest *request){   
+    request->send(SPIFFS, "assets/apple.png", "image/png");
+  });
+
+  // Route to 
+  server.on("assets/favicon-16x16.png", HTTP_GET, [](AsyncWebServerRequest *request){   
     request->send(SPIFFS, "assets/favicon-16x16.png", "image/png");
   });
 
   // Route to 
-  server.on("assets/icons/favicon-32x32.png", HTTP_GET, [](AsyncWebServerRequest *request){   
+  server.on("assets/favicon-32x32.png", HTTP_GET, [](AsyncWebServerRequest *request){   
     request->send(SPIFFS, "assets/favicon-32x32.png", "image/png");
   });
 
   // Route to 
-  server.on("assets/icons/mstile-150x150.png", HTTP_GET, [](AsyncWebServerRequest *request){   
+  server.on("assets/mstile-150x150.png", HTTP_GET, [](AsyncWebServerRequest *request){   
     request->send(SPIFFS, "assets/mstile-150x150.png", "image/png");
   });
 

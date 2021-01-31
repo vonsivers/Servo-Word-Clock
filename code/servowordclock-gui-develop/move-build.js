@@ -3,7 +3,7 @@ const fse = require('fs-extra');
 const resolve = require('path').resolve
 
 const buildFolder = resolve('./build/');
-const targetFolder = resolve('../Servo Word Clock ESP8266-SPIFFS/data');
+const targetFolder = resolve('../ServoWordClockESP8266/data');
 
 console.log(`moving from "${buildFolder}" to "${targetFolder}"`);
 

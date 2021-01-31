@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npm run build:app && npm run build:move",
     "build:app": "(preact build --no-prerender --no-esm --no-sw || exit 0)",
-    "build:move":"node move-build.js",
+    "build:move": "node move-build.js",
     "serve": "sirv build --port 8080 --cors --single",
     "dev": "preact watch",
     "lint": "eslint src/**/*.{js,jsx,ts,tsx} --fix",
