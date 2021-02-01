@@ -13,7 +13,8 @@
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <FS.h>
+//#include <FS.h>
+#include <LittleFS.h>
 #include <TimeLib.h>
 #include <EEPROM.h>
 #include <Ticker.h>
@@ -29,6 +30,22 @@
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
+
+// list all files in SPIFF -> TO BE REMOVED
+void listAllFiles(){
+  //Dir dir = SPIFFS.openDir ("");
+  Dir dir = LittleFS.openDir ("/");
+  while (dir.next ()) {
+    Serial.println (dir.fileName ());
+    Serial.println (dir.fileSize ());
+  }
+  dir = LittleFS.openDir ("/assets");
+  while (dir.next ()) {
+    Serial.println (dir.fileName ());
+    Serial.println (dir.fileSize ());
+  }
+ 
+}
  
 void setup(){
   // Serial port for debugging purposes
@@ -50,10 +67,26 @@ void setup(){
  loginkey = createRandString();
 
   // Initialize SPIFFS
-  if(!SPIFFS.begin()){
+  //if(!SPIFFS.begin()){
+  if(!LittleFS.begin()){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
+
+// delete all files in SPIFF -> TO BE REMOVED
+/*
+    //bool formatted = SPIFFS.format();
+    bool formatted = LittleFS.format();
+
+    if(formatted){
+    Serial.println("\n\nSuccess formatting");
+  }else{
+    Serial.println("\n\nError formatting");
+  }
+*/
+  Serial.println("\n\n----Listing files----");
+  listAllFiles();
+  
 
   // Connect to Wi-Fi
   WiFi.begin(config.ssid, config.password);
@@ -62,7 +95,7 @@ void setup(){
     Serial.println("Connecting to WiFi..");
   }
 
-  // Print ESP32 Local IP Address
+  // Print ESP Local IP Address
   Serial.println(WiFi.localIP());
 
   // Route for root / web page
@@ -88,32 +121,32 @@ void setup(){
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/index.html", "text/html");
+    request->send(LittleFS, "index.html", "text/html");
   });
   
   // Route to load style.css file
   server.on("/bundle.css", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/bundle.css", "text/css");
+    request->send(LittleFS, "bundle.css", "text/css");
   });
 
   // Route to 
   server.on("/bundle.js", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/bundle.js", "application/javascript");
+    request->send(LittleFS, "bundle.js", "application/javascript");
   });
 
   // Route to
   server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/favicon.ico", "image/x-icon");
+    request->send(LittleFS, "favicon.ico", "image/x-icon");
   });
   
   // Route to 
   server.on("/manifest.json", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "/manifest.json", "application/json");
+    request->send(LittleFS, "manifest.json", "application/json");
   });
 
   // Route to 
   server.on("/polyfills.js", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "/polyfills.js", "application/javascript");
+    request->send(LittleFS, "polyfills.js", "application/javascript");
   });
 
   // Route to 
@@ -122,50 +155,49 @@ void setup(){
   // });
 
   // Route to 
-  server.on("sw.js", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "sw.js", "application/javascript");
+ // server.on("sw.js", HTTP_GET, [](AsyncWebServerRequest *request){   
+   // request->send(SPIFFS, "sw.js", "application/javascript");
+  //});
+
+  // Route to 
+  server.on("/assets/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){   
+    request->send(LittleFS, "/assets/favicon.ico", "image/x-icon");
+  });
+  
+  // Route to 
+  server.on("/assets/materialIcons.woff2", HTTP_GET, [](AsyncWebServerRequest *request){  
+    request->send(LittleFS, "/assets/materialIcons.woff2", "font/woff2");
+  });
+  
+  // Route to 
+  server.on("/assets/android-192x192.png", HTTP_GET, [](AsyncWebServerRequest *request){   
+    request->send(LittleFS, "/assets/android-192x192.png", "image/png");
   });
 
   // Route to 
-  server.on("assets/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "assets/favicon.ico", "image/x-icon");
-  });
-  // Route to 
-  server.on("assets/materialIcons.woff2", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "assets/materialIcons.woff2", "font/woff2");
+  server.on("/assets/android-512x512.png", HTTP_GET, [](AsyncWebServerRequest *request){   
+    request->send(LittleFS, "/assets/android-512x512.png", "image/png");
   });
 
   // Route to 
-  server.on("assets/android-192x192.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "assets/android-192x192.png", "image/png");
+  server.on("/assets/apple.png", HTTP_GET, [](AsyncWebServerRequest *request){   
+    request->send(LittleFS, "/assets/apple.png", "image/png");
   });
 
   // Route to 
-  server.on("assets/android-512x512.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "assets/android-512x512.png", "image/png");
+  server.on("/assets/favicon-16x16.png", HTTP_GET, [](AsyncWebServerRequest *request){   
+    request->send(LittleFS, "/assets/favicon-16x16.png", "image/png");
   });
 
   // Route to 
-  server.on("assets/apple.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "assets/apple.png", "image/png");
+  server.on("/assets/favicon-32x32.png", HTTP_GET, [](AsyncWebServerRequest *request){   
+    request->send(LittleFS, "/assets/favicon-32x32.png", "image/png");
   });
 
   // Route to 
-  server.on("assets/favicon-16x16.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "assets/favicon-16x16.png", "image/png");
+  server.on("/assets/mstile-150x150.png", HTTP_GET, [](AsyncWebServerRequest *request){   
+    request->send(LittleFS, "/assets/mstile-150x150.png", "image/png");
   });
-
-  // Route to 
-  server.on("assets/favicon-32x32.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "assets/favicon-32x32.png", "image/png");
-  });
-
-  // Route to 
-  server.on("assets/mstile-150x150.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(SPIFFS, "assets/mstile-150x150.png", "image/png");
-  });
-
-
 
   // Start server
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "http://localhost:8080");   // avoids CORS error when GUI is running on localhost

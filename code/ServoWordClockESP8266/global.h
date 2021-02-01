@@ -69,6 +69,7 @@ struct strConfig {
   String login;                         // up to 32 Byte - EEPROM 257
 } config;
 
+
 // create random string for login
 String createRandString() {
   
