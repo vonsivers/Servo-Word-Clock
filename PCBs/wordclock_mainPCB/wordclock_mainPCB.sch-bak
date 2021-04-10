@@ -1,0 +1,259 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev "1"
+Comp ""
+Comment1 "Designed for AISLER 2-Layer Service"
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L ZC563900:ZC563900 U1
+U 1 1 602954A6
+P 2900 2600
+F 0 "U1" H 2900 3767 50  0000 C CNN
+F 1 "ZC563900" H 2900 3676 50  0000 C CNN
+F 2 "user-footprints:MODULE_ZC563900" H 2900 2600 50  0001 L BNN
+F 3 "" H 2900 2600 50  0001 L BNN
+F 4 "1.0" H 2900 2600 50  0001 L BNN "PARTREV"
+F 5 "N/A" H 2900 2600 50  0001 L BNN "MAXIMUM_PACKAGE_HEIGHT"
+F 6 "Manufacturer Recommendations" H 2900 2600 50  0001 L BNN "STANDARD"
+F 7 "YKS" H 2900 2600 50  0001 L BNN "MANUFACTURER"
+	1    2900 2600
+	1    0    0    -1  
+$EndComp
+$Comp
+L my_parts:TXS0108E_breakout A?
+U 1 1 60297691
+P 4750 2500
+F 0 "A?" H 4750 3165 50  0000 C CNN
+F 1 "TXS0108E_breakout" H 4750 3074 50  0000 C CNN
+F 2 "my_parts:TXS0108E_breakout" H 4750 3100 50  0001 C CNN
+F 3 "https://www.az-delivery.de/products/logiklevel-wandler-3-3v-5v?variant=18568538390624" H 4750 3100 50  0001 C CNN
+	1    4750 2500
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:CP C?
+U 1 1 60298374
+P 6400 3000
+F 0 "C?" H 6518 3046 50  0000 L CNN
+F 1 "1000uF" H 6518 2955 50  0000 L CNN
+F 2 "" H 6438 2850 50  0001 C CNN
+F 3 "~" H 6400 3000 50  0001 C CNN
+	1    6400 3000
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small_US R?
+U 1 1 60299201
+P 5150 2300
+F 0 "R?" H 5082 2254 50  0000 R CNN
+F 1 "470Ohm" H 5082 2345 50  0000 R CNN
+F 2 "" H 5150 2300 50  0001 C CNN
+F 3 "~" H 5150 2300 50  0001 C CNN
+	1    5150 2300
+	-1   0    0    1   
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J?
+U 1 1 60299A75
+P 5900 1900
+F 0 "J?" H 6008 2181 50  0000 C CNN
+F 1 "Servo Connector" H 6008 2090 50  0000 C CNN
+F 2 "" H 5900 1900 50  0001 C CNN
+F 3 "~" H 5900 1900 50  0001 C CNN
+	1    5900 1900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x03_Male J?
+U 1 1 6029A35C
+P 5900 2400
+F 0 "J?" H 6008 2681 50  0000 C CNN
+F 1 "LED Connector" H 6008 2590 50  0000 C CNN
+F 2 "" H 5900 2400 50  0001 C CNN
+F 3 "~" H 5900 2400 50  0001 C CNN
+	1    5900 2400
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Conn_01x02_Male J?
+U 1 1 6029AA87
+P 5900 2850
+F 0 "J?" H 6008 3031 50  0000 C CNN
+F 1 "PSU Connector" H 6008 2940 50  0000 C CNN
+F 2 "" H 5900 2850 50  0001 C CNN
+F 3 "~" H 5900 2850 50  0001 C CNN
+	1    5900 2850
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 6029B4F2
+P 6400 2850
+F 0 "#PWR?" H 6400 2700 50  0001 C CNN
+F 1 "+5V" H 6415 3023 50  0000 C CNN
+F 2 "" H 6400 2850 50  0001 C CNN
+F 3 "" H 6400 2850 50  0001 C CNN
+	1    6400 2850
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 6029BC68
+P 6400 3200
+F 0 "#PWR?" H 6400 2950 50  0001 C CNN
+F 1 "GND" H 6405 3027 50  0000 C CNN
+F 2 "" H 6400 3200 50  0001 C CNN
+F 3 "" H 6400 3200 50  0001 C CNN
+	1    6400 3200
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 6029C1F2
+P 6100 2500
+F 0 "#PWR?" H 6100 2250 50  0001 C CNN
+F 1 "GND" V 6105 2372 50  0000 R CNN
+F 2 "" H 6100 2500 50  0001 C CNN
+F 3 "" H 6100 2500 50  0001 C CNN
+	1    6100 2500
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 6029C4F8
+P 6100 2300
+F 0 "#PWR?" H 6100 2150 50  0001 C CNN
+F 1 "+5V" V 6115 2428 50  0000 L CNN
+F 2 "" H 6100 2300 50  0001 C CNN
+F 3 "" H 6100 2300 50  0001 C CNN
+	1    6100 2300
+	0    1    1    0   
+$EndComp
+Text GLabel 6100 2400 2    50   Input ~ 0
+Din
+$Comp
+L power:+3.3V #PWR?
+U 1 1 6029CBDF
+P 6100 2000
+F 0 "#PWR?" H 6100 1850 50  0001 C CNN
+F 1 "+3.3V" V 6115 2128 50  0000 L CNN
+F 2 "" H 6100 2000 50  0001 C CNN
+F 3 "" H 6100 2000 50  0001 C CNN
+	1    6100 2000
+	0    1    1    0   
+$EndComp
+Text GLabel 6100 1900 2    50   Input ~ 0
+SDA
+Text GLabel 6100 1800 2    50   Input ~ 0
+SCL
+Text GLabel 3600 2100 2    50   Input ~ 0
+SDA
+Text GLabel 3600 2000 2    50   Input ~ 0
+SCL
+$Comp
+L power:+3.3V #PWR?
+U 1 1 6029D99A
+P 3600 1700
+F 0 "#PWR?" H 3600 1550 50  0001 C CNN
+F 1 "+3.3V" V 3615 1828 50  0000 L CNN
+F 2 "" H 3600 1700 50  0001 C CNN
+F 3 "" H 3600 1700 50  0001 C CNN
+	1    3600 1700
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 6029E11E
+P 3600 3500
+F 0 "#PWR?" H 3600 3250 50  0001 C CNN
+F 1 "GND" V 3605 3372 50  0000 R CNN
+F 2 "" H 3600 3500 50  0001 C CNN
+F 3 "" H 3600 3500 50  0001 C CNN
+	1    3600 3500
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 6029E6A9
+P 2200 1900
+F 0 "#PWR?" H 2200 1750 50  0001 C CNN
+F 1 "+5V" V 2215 2028 50  0000 L CNN
+F 2 "" H 2200 1900 50  0001 C CNN
+F 3 "" H 2200 1900 50  0001 C CNN
+	1    2200 1900
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 6029ED4B
+P 4450 3000
+F 0 "#PWR?" H 4450 2850 50  0001 C CNN
+F 1 "+3.3V" V 4465 3128 50  0000 L CNN
+F 2 "" H 4450 3000 50  0001 C CNN
+F 3 "" H 4450 3000 50  0001 C CNN
+	1    4450 3000
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	4450 2200 3600 2200
+$Comp
+L power:+3.3V #PWR?
+U 1 1 602A0227
+P 4450 2100
+F 0 "#PWR?" H 4450 1950 50  0001 C CNN
+F 1 "+3.3V" V 4465 2228 50  0000 L CNN
+F 2 "" H 4450 2100 50  0001 C CNN
+F 3 "" H 4450 2100 50  0001 C CNN
+	1    4450 2100
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	5050 2200 5150 2200
+Text GLabel 5150 2450 3    50   Input ~ 0
+Din
+Wire Wire Line
+	5150 2450 5150 2400
+$Comp
+L power:+5V #PWR?
+U 1 1 602A14F3
+P 5050 2100
+F 0 "#PWR?" H 5050 1950 50  0001 C CNN
+F 1 "+5V" V 5065 2228 50  0000 L CNN
+F 2 "" H 5050 2100 50  0001 C CNN
+F 3 "" H 5050 2100 50  0001 C CNN
+	1    5050 2100
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 602A1A62
+P 5050 3000
+F 0 "#PWR?" H 5050 2750 50  0001 C CNN
+F 1 "GND" V 5055 2872 50  0000 R CNN
+F 2 "" H 5050 3000 50  0001 C CNN
+F 3 "" H 5050 3000 50  0001 C CNN
+	1    5050 3000
+	0    -1   -1   0   
+$EndComp
+Connection ~ 6400 2850
+Wire Wire Line
+	6100 2850 6400 2850
+Wire Wire Line
+	6400 3200 6400 3150
+Wire Wire Line
+	6400 3150 6200 3150
+Wire Wire Line
+	6200 3150 6200 2950
+Wire Wire Line
+	6200 2950 6100 2950
+Connection ~ 6400 3150
+$EndSCHEMATC
