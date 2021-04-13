@@ -23,13 +23,21 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-time_t currentTime;                       // variable for current time
-long Update_Time_Via_NTP_Every = 180;     // update interval for NTP time (seconds)
+DNSServer dnsServer;
+AsyncWebServer server(80);
+
+int WIFI_connected = false;
+boolean firstStart = true;								// On firststart = true, NTP will try to get a valid time
+boolean time_was_set = false;
+bool CFG_saved = false;
+Ticker tkSecond;												  // Second - Timer for Updating tm Structure
+time_t now;                               // this is the epoch
+tm tm;                                    // the structure tm holds time information in a more convient way
 String ntpServerName = "pool.ntp.org";    // NTP server
-bool updateDisplay = false;               // set to true if display needs update
 String loginkey;                          // random login key
 long logintimestamp;                      // time of last correct login
-
+uint8_t lastmin;                          // minute of last display update
+bool updateDisplay = false;               // set to true if display needs update
 static Ticker deferred;       // needed to delay ESP restart in api_wifi.h
 
 // ESP chip ID

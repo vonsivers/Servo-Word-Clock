@@ -18,7 +18,9 @@ void api_timesettings_post(AsyncWebServerRequest *request) {
   // set custom time
   if(config.timeMode == "custom") {
     setTime(Hour,Minute,Second,1,1,2000);
-    currentTime = now();
+  }
+  else {  // configure NTP timezone
+    initNTP();
   }
 
   // update display

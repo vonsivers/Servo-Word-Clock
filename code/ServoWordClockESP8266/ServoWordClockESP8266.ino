@@ -11,15 +11,29 @@
 
 // Import required libraries
 #include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 #include <ESPAsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-//#include <FS.h>
+#include <ESPAsyncWebServer.h>    // https://github.com/me-no-dev/ESPAsyncWebServer
+//#include <WiFiUdp.h>
 #include <LittleFS.h>
-#include <TimeLib.h>
+//#include <TimeLib.h>
+#include <time.h>                   // time() ctime()
+#include <coredecls.h>              // settimeofday_cb()
 #include <EEPROM.h>
 #include <Ticker.h>
+#include <ArduinoOTA.h>
+#include <FastLED.h>
+#include <Wire.h>
+#include <Adafruit_PWMServoDriver.h>
 
+// MCU functions
 #include "global.h"
+#include "NTP.h"
+#include "LedMatrix_functions.h"
+#include "TimeGen.h"
+#include "WiFi_functions.h"
+
+// api functions
 #include "api_login.h"
 #include "api_timesettings.h"
 #include "api_nightmode.h"
@@ -27,9 +41,6 @@
 #include "api_wifi.h"
 #include "api_wifisettings.h"
 #include "api_changepwd.h"
-
-// Create AsyncWebServer object on port 80
-AsyncWebServer server(80);
 
 // list all files in SPIFF -> TO BE REMOVED
 void listAllFiles(){
@@ -48,21 +59,18 @@ void listAllFiles(){
 }
  
 void setup(){
+
+  // clear LEDs directly after start
+  FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.clear();
+  FastLED.show();
+
   // Serial port for debugging purposes
   Serial.begin(115200);
-
-  // define an EEPROM space of 512 Bytes to store data
-  EEPROM.begin(512); 
+  
+  Serial.println("Booting");
 
   randomSeed(analogRead(0));    // Seed RNG
-
-  delay(1000);
-
-  // just for testing clear EEPROM before start -> TO BE REMOVED!
- ClearConfig();
-
- DefaultConfig();
-
  // create random login key
  loginkey = createRandString();
 
@@ -86,132 +94,103 @@ void setup(){
 */
   Serial.println("\n\n----Listing files----");
   listAllFiles();
-  
 
-  // Connect to Wi-Fi
-  WiFi.begin(config.ssid, config.password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi..");
+  // define an EEPROM space of 512 Bytes to store data
+  EEPROM.begin(512); 
+  // just for testing clear EEPROM before start -> TO BE REMOVED!
+  ClearConfig();
+  CFG_saved = ReadConfig();
+
+  //  connect to WiFi or start as access point
+  if (CFG_saved) {
+    startSTA();
   }
+  else {
+    DefaultConfig();
+    WriteConfig();
+    startAP();
+  }
+  printConfig();
 
-  // Print ESP Local IP Address
-  Serial.println(WiFi.localIP());
+  // start web server 
+  startServer();
 
-  // Route for root / web page
-  server.on("/api/login", api_login);
-
-  // Route for root / web page
-  server.on("/api/changepwd", api_changepwd);
-
-  // Route for root / web page
-  server.on("/api/timesettings", api_timesettings);
-
-  // Route for root / web page
-  server.on("/api/displayeffects", api_displayeffects);
-
-  // Route for root / web page
-  server.on("/api/nightmode", api_nightmode);
-
-  // Route for root / web page
-  server.on("/api/wifi", api_wifi);
-
-  // Route for root / web page
-  server.on("/api/wifisettings", api_wifisettings);
-
-  // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(LittleFS, "index.html", "text/html");
-  });
+  // OTA configuration
+  String hname = "ServoWordClock-" + String(ESP.getChipId(),HEX);
+  ArduinoOTA.setHostname(hname.c_str());
+  ArduinoOTA.setPassword((const char *)"ServoWordClockOTA");
   
-  // Route to load style.css file
-  server.on("/bundle.css", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(LittleFS, "bundle.css", "text/css");
+  ArduinoOTA.onStart([]() {
+    Serial.println("Start");
   });
+  ArduinoOTA.onEnd([]() {
+    Serial.println("\nEnd");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+    else if (error == OTA_END_ERROR) Serial.println("End Failed");
+  });
+  ArduinoOTA.begin();
 
-  // Route to 
-  server.on("/bundle.js", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(LittleFS, "bundle.js", "application/javascript");
-  });
+  // initialize servo controller boards
+  initServos(); 
 
-  // Route to
-  server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(LittleFS, "favicon.ico", "image/x-icon");
-  });
+  // only reset servos if clock is in normal mode
+  currentMode = config.clockmode;    
+  if(currentMode == "normal") {
+    initMatrix();
+  }
+  // otherwise put servos again to sleep
+  else {
+    sleepServos();
+  }
+  // initialize servo position variables
+  initCurrentPos();
   
-  // Route to 
-  server.on("/manifest.json", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(LittleFS, "manifest.json", "application/json");
-  });
+  lastmin = DateTime.minute; // initialize last update of display
+ 
+  // start internal time update ISR
+  tkSecond.attach(1, ISRsecondTick);
 
-  // Route to 
-  server.on("/polyfills.js", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(LittleFS, "polyfills.js", "application/javascript");
-  });
+  // install callback - called when settimeofday is called (by SNTP or user)
+  // once enabled (by DHCP), SNTP is updated every hour by default
+  // ** optional boolean in callback function is true when triggerred by SNTP **
+  settimeofday_cb(time_is_set);
 
-  // Route to 
-  // server.on("precache-manifest.js", HTTP_GET, [](AsyncWebServerRequest *request){   
-    // request->send(SPIFFS, "/precache-manifest.js", "application/javascript");
-  // });
+  // configure NTP
+  initNTP();
 
-  // Route to 
- // server.on("sw.js", HTTP_GET, [](AsyncWebServerRequest *request){   
-   // request->send(SPIFFS, "sw.js", "application/javascript");
-  //});
+  // Give now a chance to the settimeofday callback,
+  // because it is *always* deferred to the next yield()/loop()-call.
+  yield();
 
-  // Route to 
-  server.on("/assets/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(LittleFS, "/assets/favicon.ico", "image/x-icon");
-  });
-  
-  // Route to 
-  server.on("/assets/materialIcons.woff2", HTTP_GET, [](AsyncWebServerRequest *request){  
-    request->send(LittleFS, "/assets/materialIcons.woff2", "font/woff2");
-  });
-  
-  // Route to 
-  server.on("/assets/android-192x192.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(LittleFS, "/assets/android-192x192.png", "image/png");
-  });
-
-  // Route to 
-  server.on("/assets/android-512x512.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(LittleFS, "/assets/android-512x512.png", "image/png");
-  });
-
-  // Route to 
-  server.on("/assets/apple.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(LittleFS, "/assets/apple.png", "image/png");
-  });
-
-  // Route to 
-  server.on("/assets/favicon-16x16.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(LittleFS, "/assets/favicon-16x16.png", "image/png");
-  });
-
-  // Route to 
-  server.on("/assets/favicon-32x32.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(LittleFS, "/assets/favicon-32x32.png", "image/png");
-  });
-
-  // Route to 
-  server.on("/assets/mstile-150x150.png", HTTP_GET, [](AsyncWebServerRequest *request){   
-    request->send(LittleFS, "/assets/mstile-150x150.png", "image/png");
-  });
-
-  // Start server
-  DefaultHeaders::Instance().addHeader("Access-Control-Allow-Origin", "http://localhost:8080");   // avoids CORS error when GUI is running on localhost
-  DefaultHeaders::Instance().addHeader("Access-Control-Allow-Credentials", "true");
-  server.onNotFound([](AsyncWebServerRequest *request) {
-    if (request->method() == HTTP_OPTIONS) {
-      request->send(200);
-    } else {
-      request->send(404);
-    }
-  });
-  server.begin();
+  Serial.println("Setup done");
 }
  
 void loop(){
-  
+  ArduinoOTA.handle();
+
+  if  (WIFI_connected != WL_CONNECTED and time_was_set == false) {
+    LED_no_wifi();
+    ntpAnimation = false;
+  }
+  else if (WIFI_connected == WL_CONNECTED and time_was_set == false) {
+    LED_no_ntp();
+  }
+  else if (time_was_set){
+    Gen_Time();
+    // if wifi connection got lost attempt reconnect
+    if (WIFI_connected == WL_CONNECTED and WiFi.status() != WL_CONNECTED) {
+      reconnectSTA();
+      startServer();
+    }
+    ntpAnimation = false;
+  }
 }
