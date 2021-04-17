@@ -26,6 +26,16 @@ void api_nightmode_post(AsyncWebServerRequest *request) {
   sscanf(weekend_end.c_str(), "%d:%d", &Hour, &Minute);
   config.we_hour_end = Hour;
   config.we_minute_end = Minute;
+
+  Serial.println(config.nightmode);
+  Serial.println(config.wd_hour_start);
+  Serial.println(config.wd_minute_start);
+  Serial.println(config.wd_hour_end);
+  Serial.println(config.wd_minute_end);
+  Serial.println(config.we_hour_start);
+  Serial.println(config.we_minute_start);
+  Serial.println(config.we_hour_end);
+  Serial.println(config.we_minute_end);
   
   WriteConfig();
 

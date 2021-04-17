@@ -26,40 +26,65 @@
 **
 */
 
-void time_is_set(bool from_sntp /* <= this parameter is optional */) {
+// update the global time structure
+void updateTimeStruct() {
+  time(&now);                       // read the current time
+  localtime_r(&now, &tm);           // update the structure tm with the current time
+}
+
+// for manual timesetting
+void setTime(int hh, int mm, int ss, int dd, int mon, int yy) {   
+  struct tm usertime;
+  usertime.tm_hour = hh;
+  usertime.tm_min = mm;
+  usertime.tm_sec = ss;
+  usertime.tm_mday = dd;
+  usertime.tm_mon = mon;
+  usertime.tm_year = yy - 1900;
+  time_t epoch = mktime(&usertime);
+  timeval tv = { epoch, 0 };
+  timezone tz = { 0, 0 };
+  settimeofday(&tv, &tz);
+}
+
+// triggered by callback function when time is set by user or NTP
+void time_is_set() {
   // in CONT stack, unlike ISRs,
   // any function is allowed in this callback
-
-  Serial.print("settimeofday(");
-  if (from_sntp) {
-    Serial.print("SNTP");
-  } else {
-    Serial.print("USER");
-  }
-  Serial.print(")");
-
+  Serial.println("Time was set!");
   time_was_set = true;
+  updateDisplay = true;   // always update display after time change
+  updateTimeStruct();
 }
 
+
+// configure NTP server and timezone
 void initNTP() {
-  String timeZone;
   switch (config.timeZone) {
-    case 10:
-      timeZone = "CET-1CEST,M3.5.0,M10.5.0/3";
+    case 0:
+      configTime(TZ_Europe_Berlin, "pool.ntp.org");
+      break;
+    case 1:
+      configTime(TZ_America_New_York, "pool.ntp.org");
+      break;
+    case 2:
+      configTime(TZ_America_Los_Angeles, "pool.ntp.org");
+      break;
+    case 3:
+      configTime(TZ_Europe_London, "pool.ntp.org");
       break;
     default:
-      timeZone = "GMT0";
+      configTime(TZ_Europe_Berlin, "pool.ntp.org");
   }
-  configTime(timeZone,ntpServerName);
+
 }
 
-
+// gets called every second by main loop
 void ISRsecondTick()
 {
-  // if time was set by user or NTP
+  // update time structure if time was set by user or NTP
   if(time_was_set) {
-    time(&now);                       // read the current time
-    localtime_r(&now, &tm);           // update the structure tm with the current time
+    updateTimeStruct();
   }
   
 }

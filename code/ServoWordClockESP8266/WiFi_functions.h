@@ -79,12 +79,6 @@ void startSTA() {
       //printConfig();
       Serial.println("Starting WiFi in station mode");
       WiFi.mode(WIFI_STA);
-      if (!config.dhcp) {
-        WiFi.config(IPAddress(config.IP[0], config.IP[1], config.IP[2], config.IP[3] ),  IPAddress(config.Gateway[0], config.Gateway[1], config.Gateway[2], config.Gateway[3] ) , IPAddress(config.Netmask[0], config.Netmask[1], config.Netmask[2], config.Netmask[3] ));
-      }
-      else {
-        //WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE);
-      }
       #ifdef ESP32
         WiFi.setHostname("ServoWordClock");                   // allow access via http://servowordclock from OUTSIDE network
       #elif defined(ESP8266)
@@ -94,24 +88,18 @@ void startSTA() {
       WIFI_connected = WiFi.waitForConnectResult();
       if(WIFI_connected== WL_CONNECTED ) {
         Serial.print("Wifi IP: "); Serial.println(WiFi.localIP());
+        // allow access via http://servowordclock.local from INSIDE network
+        if (!MDNS.begin("ServoWordClock")) {
+          Serial.println("Error setting up MDNS responder!");
+        }
+        else {
+          Serial.println("mDNS responder started");
+        }
       }
       else {
         Serial.println("Connection Failed! activating the AP mode...");
         startAP();
       }
-
-      
-
-      // allow access via http://servowordclock.local from INSIDE network
-      if (!MDNS.begin("ServoWordClock")) {
-        Serial.println("Error setting up MDNS responder!");
-      }
-      else {
-        Serial.println("mDNS responder started");
-      }
-   
-    
-  
 }
 
 // reconnect to WiFi if connection was lost
@@ -124,12 +112,6 @@ void reconnectSTA() {
       WiFi.disconnect();
       WiFi.mode(WIFI_OFF);
       WiFi.mode(WIFI_STA);
-      if (!config.dhcp) {
-        WiFi.config(IPAddress(config.IP[0], config.IP[1], config.IP[2], config.IP[3] ),  IPAddress(config.Gateway[0], config.Gateway[1], config.Gateway[2], config.Gateway[3] ) , IPAddress(config.Netmask[0], config.Netmask[1], config.Netmask[2], config.Netmask[3] ));
-      }
-      else {
-        WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE);
-      }
       #ifdef ESP32
         WiFi.setHostname("ServoWordClock");                   // allow access via http://servowordclock from OUTSIDE network
       #elif defined(ESP8266)

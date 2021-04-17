@@ -1,24 +1,36 @@
 /*
-  Rui Santos
-  Complete project details at https://RandomNerdTutorials.com
-  
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files.
-  
-  The above copyright notice and this permission notice shall be included in all
-  copies or substantial portions of the Software.
-*/
+    This file is part of Servo Wordclock.
+
+    Servo Wordclock is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Servo Wordclock is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Servo Wordclock.  If not, see <https://www.gnu.org/licenses/>.
+    
+    Copyright 2021, Moritz v. Sivers
+ */
 
 // Import required libraries
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
+#include <DNSServer.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>    // https://github.com/me-no-dev/ESPAsyncWebServer
 //#include <WiFiUdp.h>
 #include <LittleFS.h>
-//#include <TimeLib.h>
+//#include <TimeLib.h>                https://github.com/PaulStoffregen/Time (for manual timesetting via setTime())
 #include <time.h>                   // time() ctime()
 #include <coredecls.h>              // settimeofday_cb()
+#include <sys/time.h>                   // struct timeval
+#include <sntp.h>                       // sntp_servermode_dhcp()
+#include <TZ.h>                     // https://raw.githubusercontent.com/nayarsystems/posix_tz_db/master/zones.csv
 #include <EEPROM.h>
 #include <Ticker.h>
 #include <ArduinoOTA.h>
@@ -31,7 +43,6 @@
 #include "NTP.h"
 #include "LedMatrix_functions.h"
 #include "TimeGen.h"
-#include "WiFi_functions.h"
 
 // api functions
 #include "api_login.h"
@@ -41,6 +52,8 @@
 #include "api_wifi.h"
 #include "api_wifisettings.h"
 #include "api_changepwd.h"
+
+#include "WiFi_functions.h" // needs to come after api_wifi.h
 
 // list all files in SPIFF -> TO BE REMOVED
 void listAllFiles(){
@@ -92,13 +105,16 @@ void setup(){
     Serial.println("\n\nError formatting");
   }
 */
+
   Serial.println("\n\n----Listing files----");
   listAllFiles();
 
   // define an EEPROM space of 512 Bytes to store data
   EEPROM.begin(512); 
+  
   // just for testing clear EEPROM before start -> TO BE REMOVED!
-  ClearConfig();
+  //ClearConfig();
+  
   CFG_saved = ReadConfig();
 
   //  connect to WiFi or start as access point
@@ -144,7 +160,7 @@ void setup(){
 
   // only reset servos if clock is in normal mode
   currentMode = config.clockmode;    
-  if(currentMode == "normal") {
+  if(currentMode == 0) {
     initMatrix();
   }
   // otherwise put servos again to sleep
@@ -154,7 +170,7 @@ void setup(){
   // initialize servo position variables
   initCurrentPos();
   
-  lastmin = DateTime.minute; // initialize last update of display
+  lastmin = tm.tm_min; // initialize last update of display
  
   // start internal time update ISR
   tkSecond.attach(1, ISRsecondTick);

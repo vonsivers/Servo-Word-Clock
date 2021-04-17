@@ -13,11 +13,8 @@
 
     You should have received a copy of the GNU General Public License
     along with Servo Wordclock.  If not, see <https://www.gnu.org/licenses/>.
- 
-    based on VERBIS by Andrei Erdei - https://github.com/ancalex/VERBIS
-    modifed by Moritz v. Sivers, 25.11.2019
     
-    Copyright 2019 Moritz v. Sivers
+    Copyright 2021 Moritz v. Sivers
  */
 
 #ifndef GLOBAL_H
@@ -27,13 +24,11 @@ DNSServer dnsServer;
 AsyncWebServer server(80);
 
 int WIFI_connected = false;
-boolean firstStart = true;								// On firststart = true, NTP will try to get a valid time
-boolean time_was_set = false;
+bool time_was_set = false;
 bool CFG_saved = false;
 Ticker tkSecond;												  // Second - Timer for Updating tm Structure
 time_t now;                               // this is the epoch
 tm tm;                                    // the structure tm holds time information in a more convient way
-String ntpServerName = "pool.ntp.org";    // NTP server
 String loginkey;                          // random login key
 long logintimestamp;                      // time of last correct login
 uint8_t lastmin;                          // minute of last display update
@@ -64,17 +59,17 @@ struct strConfig {
   uint8_t brightness;                   // 1 Byte - EEPROM 213
   uint8_t meffect;                      // 1 Byte - EEPROM 214
   uint8_t heffect;                      // 1 Byte - EEPROM 215  
-  String clockmode;                     // up to 32 Byte - EEPROM 216
-  uint8_t nightmode;                    // 1 Byte - EEPROM 248
-  uint8_t wd_hour_start;                // 1 Byte - EEPROM 249
-  uint8_t wd_minute_start;              // 1 Byte - EEPROM 250
-  uint8_t wd_hour_end;                  // 1 Byte - EEPROM 251
-  uint8_t wd_minute_end;                // 1 Byte - EEPROM 252
-  uint8_t we_hour_start;                // 1 Byte - EEPROM 253
-  uint8_t we_minute_start;              // 1 Byte - EEPROM 254
-  uint8_t we_hour_end;                  // 1 Byte - EEPROM 255
-  uint8_t we_minute_end;                // 1 Byte - EEPROM 256
-  String login;                         // up to 32 Byte - EEPROM 257
+  uint8_t clockmode;                    // 1 Byte - EEPROM 216
+  uint8_t nightmode;                    // 1 Byte - EEPROM 217
+  uint8_t wd_hour_start;                // 1 Byte - EEPROM 218
+  uint8_t wd_minute_start;              // 1 Byte - EEPROM 219
+  uint8_t wd_hour_end;                  // 1 Byte - EEPROM 220
+  uint8_t wd_minute_end;                // 1 Byte - EEPROM 221
+  uint8_t we_hour_start;                // 1 Byte - EEPROM 222
+  uint8_t we_minute_start;              // 1 Byte - EEPROM 223
+  uint8_t we_hour_end;                  // 1 Byte - EEPROM 224
+  uint8_t we_minute_end;                // 1 Byte - EEPROM 225
+  String login;                         // up to 32 Byte - EEPROM 226
 } config;
 
 
@@ -168,7 +163,7 @@ String  ReadStringFromEEPROM(int beginaddress){
 void DefaultConfig() { 
     config.isDayLightSaving = false;
     config.timeMode = "internet";   
-    config.timeZone = 10;
+    config.timeZone = 0;
     config.ssid = "ServoWordClock-" + String(chipID,HEX);       
     config.password = "";
     config.wcolor = "#ff0000";
@@ -180,7 +175,7 @@ void DefaultConfig() {
     config.brightness = 150;
     config.meffect = 0;
     config.heffect = 0;
-    config.clockmode = "normal";
+    config.clockmode = 0;
     config.nightmode = 0;
     config.wd_hour_start = 0;
     config.wd_minute_start = 0;
@@ -214,17 +209,17 @@ void WriteConfig(){
   EEPROM.write(213, config.brightness);
   EEPROM.write(214, config.meffect);
   EEPROM.write(215, config.heffect);
-  WriteStringToEEPROM(216, config.clockmode);
-  EEPROM.write(248, config.nightmode);
-  EEPROM.write(249, config.wd_hour_start);
-  EEPROM.write(250, config.wd_minute_start);
-  EEPROM.write(251, config.wd_hour_end);
-  EEPROM.write(252, config.wd_minute_end);
-  EEPROM.write(253, config.we_hour_start);
-  EEPROM.write(254, config.we_minute_start);
-  EEPROM.write(255, config.we_hour_end);
-  EEPROM.write(256, config.we_minute_end);
-  WriteStringToEEPROM(257, config.login);
+  EEPROM.write(216, config.clockmode);
+  EEPROM.write(217, config.nightmode);
+  EEPROM.write(218, config.wd_hour_start);
+  EEPROM.write(219, config.wd_minute_start);
+  EEPROM.write(220, config.wd_hour_end);
+  EEPROM.write(221, config.wd_minute_end);
+  EEPROM.write(222, config.we_hour_start);
+  EEPROM.write(223, config.we_minute_start);
+  EEPROM.write(224, config.we_hour_end);
+  EEPROM.write(225, config.we_minute_end);
+  WriteStringToEEPROM(226, config.login);
   
   EEPROM.commit();
   Serial.println("Config Saved!");
@@ -256,17 +251,17 @@ boolean ReadConfig(){
     config.brightness = EEPROM.read(213);
     config.meffect = EEPROM.read(214);
     config.heffect = EEPROM.read(215);
-    config.clockmode = ReadStringFromEEPROM(216);
-    config.nightmode = EEPROM.read(248);
-    config.wd_hour_start = EEPROM.read(249);
-    config.wd_minute_start = EEPROM.read(250);
-    config.wd_hour_end = EEPROM.read(251);
-    config.wd_minute_end = EEPROM.read(252);
-    config.we_hour_start = EEPROM.read(253);
-    config.we_minute_start = EEPROM.read(254);
-    config.we_hour_end = EEPROM.read(255);
-    config.we_minute_end = EEPROM.read(256);
-    config.login = ReadStringFromEEPROM(257);
+    config.clockmode = EEPROM.read(216);
+    config.nightmode = EEPROM.read(217);
+    config.wd_hour_start = EEPROM.read(218);
+    config.wd_minute_start = EEPROM.read(219);
+    config.wd_hour_end = EEPROM.read(220);
+    config.wd_minute_end = EEPROM.read(221);
+    config.we_hour_start = EEPROM.read(222);
+    config.we_minute_start = EEPROM.read(223);
+    config.we_hour_end = EEPROM.read(224);
+    config.we_minute_end = EEPROM.read(225);
+    config.login = ReadStringFromEEPROM(226);
     
     return true;
 
@@ -283,21 +278,21 @@ void printConfig(){
 
   Serial.println("Printing Config");
   Serial.println("------------------");
-  Serial.printf("DayLight:%d\n", config.isDayLightSaving);
+  Serial.printf("DST:%d\n", config.isDayLightSaving);
   Serial.printf("Timemode:%s\n", config.timeMode.c_str());
-  Serial.printf("Timezone %ld\n", config.timeZone); 
+  Serial.printf("Timezone %d\n", config.timeZone); 
   Serial.printf("SSID:%s\n", config.ssid.c_str());
   Serial.printf("PWD:%s\n", config.password.c_str());
   Serial.printf("Dot Color:%s\n", config.dcolor.c_str());
   Serial.printf("Word Color:%s\n", config.wcolor.c_str());
   Serial.printf("Background Color:%s\n", config.bcolor.c_str());
-  Serial.printf("Dot Color Mode:%s\n", config.dcolormode);
-  Serial.printf("Word Color Mode:%s\n", config.wcolormode);
-  Serial.printf("Bkg Color Mode:%s\n", config.bcolormode);
+  Serial.printf("Dot Color Mode:%d\n", config.dcolormode);
+  Serial.printf("Word Color Mode:%d\n", config.wcolormode);
+  Serial.printf("Bkg Color Mode:%d\n", config.bcolormode);
   Serial.printf("Brightness %d\n", config.brightness); 
-  Serial.printf("Minute Effect:%s\n", config.meffect);
-  Serial.printf("Hour Effect:%s\n", config.heffect);
-  Serial.printf("Clock Mode:%s\n", config.clockmode.c_str());
+  Serial.printf("Minute Effect:%d\n", config.meffect);
+  Serial.printf("Hour Effect:%d\n", config.heffect);
+  Serial.printf("Clock Mode:%d\n", config.clockmode);
   Serial.printf("Night Mode:%d\n", config.nightmode);
   Serial.printf("weekdays hour start: %d\n", config.wd_hour_start);
   Serial.printf("weekdays minute start: %d\n", config.wd_minute_start);

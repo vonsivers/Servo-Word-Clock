@@ -13,7 +13,17 @@ void api_displayeffects_post(AsyncWebServerRequest *request) {
   config.wcolormode = request->getParam("color_mode_word",true)->value().toInt();
   config.wcolor = request->getParam("color_word",true)->value();
   config.bcolormode = request->getParam("color_mode_background",true)->value().toInt();
-  config.bcolor = request->getParam("color_background",true)->value();    
+  config.bcolor = request->getParam("color_background",true)->value();
+
+  Serial.println(config.brightness);
+  Serial.println(config.heffect);
+  Serial.println(config.meffect);
+  Serial.println(config.dcolormode);
+  Serial.println(config.dcolor);
+  Serial.println(config.wcolormode);
+  Serial.println(config.wcolor);
+  Serial.println(config.bcolormode);
+  Serial.println(config.bcolor);
   
   WriteConfig();
 
@@ -42,9 +52,10 @@ void api_displayeffects_get(AsyncWebServerRequest *request) {
    result += "color_mode_dot_type\nfixed\nrandom\n\n";
    result += "color_mode_word_type\nfixed\nrandom\n\n";
    result += "color_mode_background_type\nfixed\nrandom\ncycle\n\n";
+
+   Serial.println(result);
   
    request->send ( 200, "text/plain", result );
-
   
 }
 

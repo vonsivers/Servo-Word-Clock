@@ -23,8 +23,9 @@ void api_timesettings_post(AsyncWebServerRequest *request) {
     initNTP();
   }
 
-  // update display
-  updateDisplay = true;
+  Serial.println(config.timeMode);
+  Serial.println(config.timeZone);
+  Serial.println(config.isDayLightSaving);
   
   WriteConfig();
 
@@ -36,13 +37,11 @@ void api_timesettings_get(AsyncWebServerRequest *request) {
   
   Serial.println(__FUNCTION__); 
 
-  
-  
   String result = "";
    result += "mode\n" + (String) config.timeMode + "\n\n";
    result += "timezone\n" + (String) config.timeZone + "\n\n";
    result += "use_dst\n" + (String) config.isDayLightSaving + "\n\n";
-   result += "manual_time\n" + (String) hour(currentTime) + ":" + (String) minute(currentTime) + ":" + (String) second(currentTime);
+   result += "manual_time\n" + (String) tm.tm_hour + ":" + (String) tm.tm_min + ":" + (String) tm.tm_sec;
 
     Serial.println(result);
   

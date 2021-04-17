@@ -130,8 +130,8 @@ uint8_t currentHue[11][11] = {0};  // current hue
 uint16_t DELAY_slow = 5;   
 uint16_t DELAY_fast = 1;
 
-// current clockmode
-String currentMode;
+// current clockmode: 0=normal, 1=servos off, 2=everything off
+uint8_t currentMode;  
 
 // counter for no Wifi animation
 int wifiAnimation = 0;                   
@@ -288,8 +288,8 @@ void wakeupServos() {
 //
 void moveServo(int row, int column, unsigned int pos) {
 
-  // only move when current clock mode set to "normal"
-  if(currentMode=="normal") {
+  // only move when current clock mode set to 0
+  if(currentMode==0) {
     // check if position is within limits
     if (pos<=SERVOMAX && pos>=SERVOMIN) {
 
@@ -340,10 +340,10 @@ void initMatrix() {
 void initCurrentPos() {
   for (int row=0; row<11; row++) {
     for (int column=0; column<11; column++) {
-      if(currentMode == "silent"){
+      if(currentMode == 1){
         currentPos[row][column]=SERVOMAX;
       }
-      else if(currentMode == "off") {
+      else if(currentMode == 2) {
         currentPos[row][column]=SERVOMIN;
       }
     }
@@ -371,7 +371,7 @@ void ServosToFront() {
 void lightLED(int row, int column, int hue) {
 
   // only light LEDs if clock is not set to off
-  if(currentMode!="off") {
+  if(currentMode!=2) {
 
   int i;
   // letters
@@ -447,10 +447,10 @@ void lightupSymBrightness(uint8_t Sym[][2], int nLEDs, uint8_t hue, uint8_t brig
 
 // show word on display
 //
-void lightup(uint8_t Word[][2], int nLetters, String effect) {
+void lightup(uint8_t Word[][2], int nLetters, uint8_t effect) {
   
   // each word gets different random color
-  if(config.wcolormode=="random") {
+  if(config.wcolormode==1) {
       do {    
       hue_w = random(256); 
       //Serial.print("hue_w="); Serial.println(hue_w);
@@ -459,7 +459,7 @@ void lightup(uint8_t Word[][2], int nLetters, String effect) {
   }
   Serial.print("Hue words: "); Serial.println(hue_w);
   
-  if (effect=="effect1") {    // typing effect (letters appear from left to right)
+  if (effect==0) {    // typing effect (letters appear from left to right)
     for (int i = 0; i < nLetters; i++) {
         for (int pos=SERVOMIN; pos<=SERVOMAX; ++pos) {
           moveServo(Word[i][0],Word[i][1],pos);
@@ -471,7 +471,7 @@ void lightup(uint8_t Word[][2], int nLetters, String effect) {
     }
   }
   // words move slowly in, all letters simultaneously
-  else if (effect=="effect2") { 
+  else if (effect==1) { 
     double hueStep = (double)(hue_w - hue_b)/(double)(SERVOMAX-SERVOMIN);    
     double hue = (double)hue_b; 
     
@@ -555,7 +555,7 @@ void LettersToRandom() {
 
 // show hours on display
 //
-void setHours(byte c_hour, String effect) {
+void setHours(byte c_hour, uint8_t effect) {
     switch (c_hour) {
                 case 0:
                 case 12:
@@ -612,22 +612,22 @@ void setHours(byte c_hour, String effect) {
 
 // update dots showing minutes
 //
-void updateMinutes(String effect) {
+void updateMinutes(uint8_t effect) {
   
   Serial.println("updating dots");
   
-  if(config.dcolormode=="fixed") {
+  if(config.dcolormode==0) {
    hue_d = hexToHue(config.dcolor);
   }
-  else if(config.dcolormode=="random") {
+  else if(config.dcolormode==1) {
     do {    
       hue_d = random(256); 
     } while(abs(hue_d-hue_b)<32 || (abs(hue_d-hue_b)>224));   // ensure that dot color is different enough from bkg color
   }
   
-  int ndots = (DateTime.minute % 5);
+  int ndots = (tm.tm_min % 5);
 
-  if(effect=="effect1") {
+  if(effect==0) {
     for (int i=0; i<ndots; ++i) {
       for (int pos=currentPos[10][i]; pos<=SERVOMAX; ++pos) {
         moveServo(10,i,pos);
@@ -638,7 +638,7 @@ void updateMinutes(String effect) {
       usedLetters[10][i]=1;
     }
   }
-  else if (effect=="effect2") {
+  else if (effect==1) {
     double hueStep = (double)(hue_d - hue_b)/(double)(SERVOMAX-SERVOMIN);    
     double hue = (double)hue_b;
     for (int pos=SERVOMIN; pos<=SERVOMAX; ++pos) {
@@ -674,40 +674,39 @@ void updateTime() {
   }
 
   // select effect
-  // "effect1": letters move in from back one by one 
-  // "effect2": letters of every word move in simultaneously from back, 
-  // "effect3": all letters move back simultaneously from front
-  // "effect4": letters move first to random position then simultaneously to final position
-  // "random": random effect
+  // 0: letters move in from back one by one 
+  // 1: letters of every word move in simultaneously from back, 
+  // 2: all letters move back simultaneously from front
+  // 3: letters move first to random position then simultaneously to final position
+  // 4: random effect
 
-  String effects[4] = {"effect1", "effect2", "effect3", "effect4"};
-  String effect;
+  uint8_t effect;
   
   // check if full hour
-  if(DateTime.minute / 5 == 0) {
+  if(tm.tm_min == 0) {
     effect = config.heffect;
   }
   else {
     effect = config.meffect;
   }
-  if(effect=="random") {
-    effect = effects[random(4)];
+  if(effect==4) {
+    effect = random(4);
   }
 
   // set LED brightness
   FastLED.setBrightness(config.brightness);
 
   // choose background color
-  if(config.bcolormode=="fixed") {
+  if(config.bcolormode==0) {
       hue_b = hexToHue(config.bcolor);
   }
-  else if(config.bcolormode=="random") {
+  else if(config.bcolormode==1) {
     hue_b = random(256);
   }
   Serial.print("Hue background: "); Serial.println(hue_b);
 
   // choose word color
-  if(config.wcolormode=="fixed") {
+  if(config.wcolormode==0) {
       hue_w = hexToHue(config.wcolor);
   }
   else {
@@ -718,14 +717,14 @@ void updateTime() {
   Serial.print("Hue words: "); Serial.println(hue_w);
 
   // move servos to front if mode was changed to silent
-  if(config.clockmode=="silent" && currentMode!="silent") {
+  if(config.clockmode==1 && currentMode!=1) {
     Serial.println("clock mode switched to silent");
     ServosToFront();
     delay(500);
     sleepServos();
   }
   // move servos to back and switch off LEDs if mode was changed to off
-  else if(config.clockmode=="off" && currentMode!="off") {
+  else if(config.clockmode==2 && currentMode!=2) {
     Serial.println("clock mode switched to off");
     LettersToBack();
     FastLED.clear();
@@ -734,7 +733,7 @@ void updateTime() {
     sleepServos();
   }
   // initialize servos if mode changed to normal
-  else if(config.clockmode=="normal" && currentMode!="normal") {
+  else if(config.clockmode==0 && currentMode!=0) {
     Serial.println("clock mode switched to normal");
     wakeupServos();
   }
@@ -743,11 +742,11 @@ void updateTime() {
   currentMode = config.clockmode;
 
   // move all letters to front 
-  if(effect=="effect3") {
+  if(effect==2) {
    LettersToFront(); 
   }
   // move letters to random position 
-  else if(effect=="effect4") {
+  else if(effect==3) {
     LettersToRandom();
   }
   // move letters to back
@@ -760,84 +759,84 @@ void updateTime() {
   lightup(IS,sizeof(IS)/sizeof(IS[0]),effect);
 
   // show minutes and hours
-  switch (DateTime.minute / 5) {
+  switch (tm.tm_min / 5) {
                 case 0:
                     // full hour
-                      setHours(DateTime.hour,effect);
+                      setHours(tm.tm_hour,effect);
                       lightup(OCLOCK,sizeof(OCLOCK)/sizeof(OCLOCK[0]),effect);
                     break;
                 case 1:
                     // 5 past
                       lightup(FIVE_M,sizeof(FIVE_M)/sizeof(FIVE_M[0]),effect);
                       lightup(PAST,sizeof(PAST)/sizeof(PAST[0]),effect);
-                      setHours(DateTime.hour,effect);
+                      setHours(tm.tm_hour,effect);
                     break;
                 case 2:
                     // 10 past
                       lightup(TEN_M,sizeof(TEN_M)/sizeof(TEN_M[0]),effect);
                       lightup(PAST,sizeof(PAST)/sizeof(PAST[0]),effect);
-                      setHours(DateTime.hour,effect);
+                      setHours(tm.tm_hour,effect);
                     break;
                 case 3:
                     // quarter past
                       lightup(QUARTER,sizeof(QUARTER)/sizeof(QUARTER[0]),effect);
                       lightup(PAST,sizeof(PAST)/sizeof(PAST[0]),effect);
-                      setHours(DateTime.hour,effect);
+                      setHours(tm.tm_hour,effect);
                     break;
                 case 4:
                     // 20 past
                     lightup(TWENTY,sizeof(TWENTY)/sizeof(TWENTY[0]),effect);
                       lightup(PAST,sizeof(PAST)/sizeof(PAST[0]),effect);
-                      setHours(DateTime.hour,effect);
+                      setHours(tm.tm_hour,effect);
                     break;
                 case 5:
                     // 25 past
                  lightup(TWENTY,sizeof(TWENTY)/sizeof(TWENTY[0]),effect);
                       lightup(FIVE_M,sizeof(FIVE_M)/sizeof(FIVE_M[0]),effect);
                       lightup(PAST,sizeof(PAST)/sizeof(PAST[0]),effect);
-                      setHours(DateTime.hour,effect);
+                      setHours(tm.tm_hour,effect);
                     break;
                 case 6:
                     // half past
                       lightup(HALF,sizeof(HALF)/sizeof(HALF[0]),effect);
                       lightup(PAST,sizeof(PAST)/sizeof(PAST[0]),effect);
-                      setHours(DateTime.hour,effect);
+                      setHours(tm.tm_hour,effect);
                     break;
                 case 7:
                     // 25 to
                       lightup(TWENTY,sizeof(TWENTY)/sizeof(TWENTY[0]),effect);
                       lightup(FIVE_M,sizeof(FIVE_M)/sizeof(FIVE_M[0]),effect);
                       lightup(TO,sizeof(TO)/sizeof(TO[0]),effect);
-                      setHours(DateTime.hour + 1,effect);
+                      setHours(tm.tm_hour + 1,effect);
                     break;
                 case 8:
                     // 20 to
                       lightup(TWENTY,sizeof(TWENTY)/sizeof(TWENTY[0]),effect);
                       lightup(TO,sizeof(TO)/sizeof(TO[0]),effect);
-                      setHours(DateTime.hour + 1,effect);
+                      setHours(tm.tm_hour + 1,effect);
                     break;
                 case 9:
                     // 15 to
                       lightup(QUARTER,sizeof(QUARTER)/sizeof(QUARTER[0]),effect);
                       lightup(TO,sizeof(TO)/sizeof(TO[0]),effect);
-                      setHours(DateTime.hour + 1,effect);
+                      setHours(tm.tm_hour + 1,effect);
                     break;
                 case 10:
                       lightup(TEN_M,sizeof(TEN_M)/sizeof(TEN_M[0]),effect);
                       lightup(TO,sizeof(TO)/sizeof(TO[0]),effect);
-                      setHours(DateTime.hour + 1,effect);
+                      setHours(tm.tm_hour + 1,effect);
                     break;
                 case 11:
                     // 5 to
                       lightup(FIVE_M,sizeof(FIVE_M)/sizeof(FIVE_M[0]),effect);
                       lightup(TO,sizeof(TO)/sizeof(TO[0]),effect);
-                      setHours(DateTime.hour + 1,effect);
+                      setHours(tm.tm_hour + 1,effect);
                     break;
             }
             updateMinutes(effect);
 
             // for fade out effect move all background LEDs to back
-            if(effect=="effect3") {
+            if(effect==2) {
               //double hueStep = (double)(hue_b - hue_w)/(double)(SERVOMAX-SERVOMIN);    
               //double hue = (double)hue_w;
               for(int pos=SERVOMAX-1; pos>=SERVOMIN; pos--) {
@@ -858,7 +857,7 @@ void updateTime() {
               }
             }
             // for color mix effect simultanously move all letters to final position
-            else if(effect=="effect4") {
+            else if(effect==3) {
               int n = 0; // number of letters that reached final position
               while (n<121) {
                 n = 0;
@@ -869,7 +868,7 @@ void updateTime() {
                     // check if letter needs to be moved to front
                     if(usedLetters[row][column]) {          
                       // servos only move when clock mode set to normal
-                      if(currentMode == "normal") { 
+                      if(currentMode == 0) { 
                         double hueStep = (double)(hue_w - hue)/(double)(SERVOMAX-pos);
                         if(pos<SERVOMAX) {
                           pos++;
@@ -899,7 +898,7 @@ void updateTime() {
                     // letters which go to back
                     else {
                       // servos only move when clock mode set to normal
-                      if(currentMode == "normal") {
+                      if(currentMode == 0) {
                         double hueStep = (double)(hue_b - hue)/(double)(pos-SERVOMIN);
                         if(pos>SERVOMIN) {
                           pos--;
@@ -1064,7 +1063,7 @@ void updateSeconds() {
   unsigned long milliseconds = (currentMillis - lastMillis) % 60000;
   //unsigned long periodMillis = currentMillis - lastMillis;
   //unsigned long milliseconds;
-  int ndots = (DateTime.minute % 5);
+  int ndots = (tm.tm_min % 5);
     unsigned int servomin = pgm_read_word_near(SERVOMIN_CAL + servonum(11,ndots+1));
     unsigned int servomax = pgm_read_word_near(SERVOMAX_CAL + servonum(11,ndots+1));
     //if (periodMillis<1000) {

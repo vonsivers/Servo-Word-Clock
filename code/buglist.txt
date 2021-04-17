@@ -1,0 +1,18 @@
+Wifi Settings:
+- Passwordfeld wird beim tippen zurückgesetzt when wifi refreshed
+
+Time Settings:
+- "GTM"(!) ersetzen durch Städtenamen
+- DST Feld überflüssig
+- set custom time nicht möglich
+- Datum bei custom time einfügen
+
+Display Effects:
+- Werte werden bei http post nicht übergeben
+
+Night Mode:
+- Wert für mode wird bei http post nicht übergeben
+
+Other:
+- auf Groß/Kleinschreibung achten
+- Zurück Button mit dem man wieder ins Hauptmenü kommt

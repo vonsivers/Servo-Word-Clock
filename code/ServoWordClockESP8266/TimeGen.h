@@ -38,8 +38,8 @@ void Gen_Time() {
     }
     // change to normal mode
     else {
-      if(currentMode!="normal") {
-        config.clockmode = "normal";
+      if(currentMode!=0) {
+        config.clockmode = 0;
         updateDisplay = true;
         WriteConfig();    // save current clock mode
       }
@@ -59,8 +59,8 @@ void Gen_Time() {
     }
     // change to normal mode
     else {
-      if(currentMode!="normal") {
-        config.clockmode = "normal";
+      if(currentMode!=0) {
+        config.clockmode = 0;
         updateDisplay = true;
         WriteConfig();    // save current clock mode
       }
@@ -78,12 +78,12 @@ void Gen_Time() {
   // update dots every minute
   else if((tm.tm_min > lastmin) || (tm.tm_min == 0 && lastmin == 59)) {
     Serial.printf("Current Time: %d:%d:%d\n", tm.tm_hour,tm.tm_min,tm.tm_sec);
-    updateMinutes("effect1");
+    updateMinutes(0);
     lastmin = tm.tm_min;  
   }
 
   // color cycle LEDs
-  if(config.bcolormode=="cycle") {
+  if(config.bcolormode==2) {
     EVERY_N_MILLISECONDS( 50 ) {updateBkgColor(); }
   }
       
