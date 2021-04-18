@@ -58,19 +58,19 @@ const Home: FunctionalComponent<Props> = (props: Props) => {
                 Constants.routes.TimeSettings
             )}
             {renderCard(
-                `Display effects`,
+                `Display Effects`,
                 `Change several options on how the clock displays time`,
                 `grid_on`,
                 Constants.routes.Display
             )}
             {renderCard(
-                `Night mode`,
+                `Night Mode`,
                 `Either switch off the servos or the entire clock for certain periods`,
                 `notifications_paused`,
                 Constants.routes.NightMode
             )}
             {renderCard(
-                `Change password`,
+                `Change Password`,
                 `Change your login password`,
                 `vpn_key`,
                 Constants.routes.ChangePassword

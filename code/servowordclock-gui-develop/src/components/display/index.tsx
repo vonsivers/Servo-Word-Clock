@@ -47,10 +47,10 @@ class Display extends Component<Props, State> {
         }
         return (
             <div class={style.display}>
-                <h1>Display effects</h1>
+                <h1>Display Effects</h1>
                 <div>
-                    <label htmlFor="brigtness">Brightness</label>
-                    <Slider id="brigtness" step={1} value={10} max={100} />
+                    <label htmlFor="brightness">Brightness</label>
+                    <Slider id="brightness" step={1} value={Number(this.state.config.brightness)} max={255} onChange={e =>{e.detail.value && this.setState({config:{...this.state.config,brightness:e.detail.value}})} } />
                 </div>
                 {this.renderSelect(
                     "effect_hour",
@@ -67,19 +67,19 @@ class Display extends Component<Props, State> {
                     "Dot color mode",
                     this.state.settings.color_mode_dot_type
                 )}
-                {this.renderColor("color_mode_dot", "Dot color")}
+                {this.renderColor("color_dot", "Dot color")}
                 {this.renderSelect(
                     "color_mode_word",
                     "Word color mode",
                     this.state.settings.color_mode_word_type
                 )}
-                {this.renderColor("color_mode_word", "Word color")}
+                {this.renderColor("color_word", "Word color")}
                 {this.renderSelect(
                     "color_mode_background",
                     "Background color mode",
                     this.state.settings.color_mode_background_type
                 )}
-                {this.renderColor("color_mode_background", "Background color")}
+                {this.renderColor("color_background", "Background color")}
                 <div class={style.textRight}>
                     <Button onClick={() => this.onClickSave()}>Save</Button>
                 </div>
@@ -124,7 +124,7 @@ class Display extends Component<Props, State> {
                         id={fieldName}
                         hintText={label}
                         class={style.control}
-                        value={this.state.config[fieldName]}
+                        value={Number(this.state.config[fieldName])}
                         onChange={e =>
                             this.setState({
                                 config: {
@@ -136,7 +136,7 @@ class Display extends Component<Props, State> {
                         }
                     >
                         {options.map((o, i) => (
-                            <Select.Item key={i} value={o}>
+                            <Select.Item key={i} value={i} selected={i===Number(this.state.config[fieldName])}>
                                 {o}
                             </Select.Item>
                         ))}

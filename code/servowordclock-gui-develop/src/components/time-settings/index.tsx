@@ -171,8 +171,8 @@ class TimeSettings extends Component<Props, State> {
                     id="time"
                     label="Time"
                     type="time"
-                    helperText="hh:mm:ss"
-                    step="1"
+                    helperText="hh:mm"
+                    
                     value={sanitizeTime(this.state.config.manual_time)}
                     onChange={e =>
                         this.setState({

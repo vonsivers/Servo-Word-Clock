@@ -74,17 +74,17 @@ class Header extends Component<Props, State> {
                             Constants.routes.TimeSettings
                         )}
                         {this.renderDrawerItem(
-                            `Display effects`,
+                            `Display Effects`,
                             `grid_on`,
                             Constants.routes.Display
                         )}
                         {this.renderDrawerItem(
-                            `Night mode`,
+                            `Night Mode`,
                             `notifications_paused`,
                             Constants.routes.NightMode
                         )}
                         {this.renderDrawerItem(
-                            `Change password`,
+                            `Change Password`,
                             `vpn_key`,
                             Constants.routes.ChangePassword
                         )}

@@ -11,13 +11,13 @@ void api_timesettings_post(AsyncWebServerRequest *request) {
   config.isDayLightSaving = request->getParam("use_dst",true)->value().toInt() == 1;
   String manual_time = request->getParam("manual_time",true)->value();
 
-  // parse string "hh:mm:ss"
+  // parse string "hh:mm"
   int Hour, Minute, Second ;
-  sscanf(manual_time.c_str(), "%d:%d:%d", &Hour, &Minute, &Second);
+  sscanf(manual_time.c_str(), "%d:%d", &Hour, &Minute);
 
   // set custom time
   if(config.timeMode == "custom") {
-    setTimeUser(Hour,Minute,Second,1,1,2000);
+    setTimeUser(Hour,Minute,0,1,1,2000);
   }
   else {  // configure NTP timezone
     initNTP();
@@ -42,7 +42,7 @@ void api_timesettings_get(AsyncWebServerRequest *request) {
    result += "mode\n" + (String) config.timeMode + "\n\n";
    result += "timezone\n" + (String) config.timeZone + "\n\n";
    result += "use_dst\n" + (String) config.isDayLightSaving + "\n\n";
-   result += "manual_time\n" + (String) tm.tm_hour + ":" + (String) tm.tm_min + ":" + (String) tm.tm_sec;
+   result += "manual_time\n" + (String) tm.tm_hour + ":" + (String) tm.tm_min;
 
     Serial.println(result);
   

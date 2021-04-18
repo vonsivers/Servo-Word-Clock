@@ -10,16 +10,13 @@ import Constants from "../../Constants";
 import {
     SWCClient,
     Wifi as WifiConfig,
-    WifiSettings
 } from "../../domain/SWCClient";
-import Icon from "preact-material-components/Icon";
 import LinearProgress from "preact-material-components/LinearProgress";
+import Ssids from "./components/Ssids";
 
 class Wifi extends Component<Props, State> {
-    private pollSSIDsTimeoutHandle?: number;
-    constructor(props: Props) {
-        super(props);
-        this.pollSSIDs = this.pollSSIDs.bind(this);
+    componentDidMount() {
+        this.props.client.getWifi().then(config => this.setState({ config }));
     }
 
     onClickSave(): void {
@@ -32,33 +29,6 @@ class Wifi extends Component<Props, State> {
         }
     }
 
-    pollSSIDs(): void {
-        this.setState({ ssidsLoading: true });
-        this.props.client.getWifiSettings().then(result => {
-            let ssids = result;
-            if (this.state.ssids) {
-                ssids = { ...this.state.ssids, ...result };
-            }
-            delete ssids[""];
-            this.setState({ ssids, ssidsLoading: false });
-            this.pollSSIDsTimeoutHandle = window.setTimeout(
-                this.pollSSIDs.bind(this),
-                5000
-            );
-        });
-    }
-
-    componentDidMount() {
-        this.props.client.getWifi().then(config => this.setState({ config }));
-        this.pollSSIDs();
-    }
-
-    componentWillUnmount() {
-        if (this.pollSSIDsTimeoutHandle) {
-            window.clearTimeout(this.pollSSIDsTimeoutHandle);
-        }
-    }
-
     render() {
         if (!this.state.config) {
             return (
@@ -67,7 +37,6 @@ class Wifi extends Component<Props, State> {
                 </div>
             );
         }
-        const networks = this.renderNetworks();
 
         return (
             <div class={style.wifi}>
@@ -119,72 +88,22 @@ class Wifi extends Component<Props, State> {
                         Save &amp; Restart
                     </Button>
                 </div>
-                {networks}
+                <Ssids client={this.props.client} onChange={ssid => this.setState({
+                    config: {
+                        ...this.state.config,
+                        ssid,
+                        password: ""
+                    }
+                })} />
             </div>
         );
     }
 
-    private renderNetworks(): h.JSX.Element {
-        if (this.state.ssids && Object.keys(this.state.ssids).length) {
-            return (
-                <div>
-                    <label>Found networks</label>
-                    <div>
-                        <table class={style.table}>
-                            <thead>
-                                <tr>
-                                    <th>SSID</th>
-                                    <th>signal strengh</th>
-                                    <th>encryption</th>
-                                </tr>
-                            </thead>
-                            {Object.keys(this.state.ssids)
-                                .sort()
-                                .map((ssid, i) => (
-                                    <tr
-                                        key={i}
-                                        onClick={() =>
-                                            this.setState({
-                                                config: {
-                                                    ...this.state.config,
-                                                    ssid,
-                                                    password: ""
-                                                }
-                                            })
-                                        }
-                                    >
-                                        <td>{ssid}</td>
-                                        <td>{this.state.ssids[ssid][0]} %</td>
-                                        <td>
-                                            <Icon>
-                                                {this.state.ssids[ssid][1] ===
-                                                "0"
-                                                    ? "no_encryption"
-                                                    : "lock"}
-                                            </Icon>
-                                        </td>
-                                    </tr>
-                                ))}
-                        </table>
-                    </div>
-                </div>
-            );
-        } else {
-            return (
-                <div>
-                    <i>scanning for networks...</i>
-                    <LinearProgress indeterminate />
-                </div>
-            );
-        }
-    }
 }
 
 interface State {
     isLoading: boolean;
-    ssidsLoading: boolean;
     config?: WifiConfig;
-    ssids?: WifiSettings;
 }
 interface Props {
     client: SWCClient;

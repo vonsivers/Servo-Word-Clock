@@ -49,15 +49,15 @@ class NightMode extends Component<Props, State> {
         }
 
         const content =
-            this.state.config.mode === "disabled" ? null : this.renderContent();
-
+            Number(this.state.config.mode) === 0 ? null : this.renderContent();
+            console.log(this.state.config,this.state.settings)
         return (
             <div class={style.nightMode}>
-                <h1>Night mode</h1>
+                <h1>Night Mode</h1>
                 <div>
-                    {this.renderRadio("disabled")}
-                    {this.state.settings.mode_type.map(t =>
-                        this.renderRadio(t)
+                    {this.renderRadio("disabled",0)}
+                    {this.state.settings.mode_type.map((t,i) =>
+                        this.renderRadio(t,i+1)
                     )}
                 </div>
                 {content}
@@ -68,17 +68,17 @@ class NightMode extends Component<Props, State> {
         );
     }
 
-    private renderRadio(type: string) {
+    private renderRadio(type: string, index: Number) {
         const cssType = type.replace(" ", "-");
         return (
             <FormField>
                 <Radio
                     id={`nightmode-${cssType}`}
                     name="nightmode"
-                    checked={this.state.config.mode === type}
+                    checked={Number(this.state.config.mode) === index}
                     onChange={e =>
                         this.setState({
-                            config: { ...this.state.config, mode: type }
+                            config: { ...this.state.config, mode: index.toString() }
                         })
                     }
                 />

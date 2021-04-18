@@ -1,0 +1,24 @@
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table tr:hover {
+    background-color: #eee;
+    cursor: pointer;
+}
+
+.table tr:not(:last-child) td {
+    border-bottom: 1px solid #ccc;
+}
+
+.table td,
+.table th {
+    padding: 5px 10px;
+    margin: 0;
+    text-align: left;
+}
+.table td:last-child,
+.table th:last-child {
+    text-align: right;
+}

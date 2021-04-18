@@ -11,10 +11,8 @@ const Constants = {
 };
 
 export function sanitizeTime(input: string): string {
-    return input
-        .split(":")
-        .map(i => i.padStart(2, "0"))
-        .join(":");
+    const time = input.split(":");
+    return (time[0] || "").padStart(2, "0") + ":" + (time[1] || "").padStart(2, "0")
 }
 
 export const baseApiUrl = process.env.PREACT_APP_API_BASE_PATH || "";
