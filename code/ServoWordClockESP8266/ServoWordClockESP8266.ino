@@ -113,20 +113,22 @@ void setup(){
   EEPROM.begin(512); 
   
   // just for testing clear EEPROM before start -> TO BE REMOVED!
-  //ClearConfig();
+  ClearConfig();
   
-  CFG_saved = ReadConfig();
+  //CFG_saved = ReadConfig();
 
   //  connect to WiFi or start as access point
-  if (CFG_saved) {
-    startSTA();
-  }
-  else {
+  //if (CFG_saved) {
+    //startSTA();
+  //}
+  //else {
     DefaultConfig();
     WriteConfig();
-    startAP();
-  }
+    //startAP();
+  //}
   printConfig();
+
+  startSTA(); // TO BE REMOVED!!
 
   // start web server 
   startServer();

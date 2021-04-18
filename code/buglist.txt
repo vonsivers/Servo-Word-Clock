@@ -4,8 +4,8 @@ Wifi Settings:
 Time Settings:
 - "GTM"(!) ersetzen durch Städtenamen
 - DST Feld überflüssig
-- set custom time nicht möglich
 - Datum bei custom time einfügen
+- Wenn Sekunden bei Time gleich 0 dann ist string hh:mm statt hh:mm:ss
 
 Display Effects:
 - Werte werden bei http post nicht übergeben

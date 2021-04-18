@@ -17,7 +17,7 @@ void api_timesettings_post(AsyncWebServerRequest *request) {
 
   // set custom time
   if(config.timeMode == "custom") {
-    setTime(Hour,Minute,Second,1,1,2000);
+    setTimeUser(Hour,Minute,Second,1,1,2000);
   }
   else {  // configure NTP timezone
     initNTP();
@@ -26,6 +26,7 @@ void api_timesettings_post(AsyncWebServerRequest *request) {
   Serial.println(config.timeMode);
   Serial.println(config.timeZone);
   Serial.println(config.isDayLightSaving);
+  Serial.println(manual_time);
   
   WriteConfig();
 

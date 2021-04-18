@@ -33,25 +33,27 @@ void updateTimeStruct() {
 }
 
 // for manual timesetting
-void setTime(int hh, int mm, int ss, int dd, int mon, int yy) {   
+void setTimeUser(int hh, int mm, int ss, int dd, int mon, int yy) { 
+  Serial.println("time set by user");
+  configTime(TZ_Etc_UTC , NULL); // set timezone to UTC (no NTP server)
+  sntp_stop(); // stop NTP update
   struct tm usertime;
   usertime.tm_hour = hh;
   usertime.tm_min = mm;
   usertime.tm_sec = ss;
   usertime.tm_mday = dd;
-  usertime.tm_mon = mon;
-  usertime.tm_year = yy - 1900;
+  usertime.tm_mon = mon - 1; // months start from 0
+  usertime.tm_year = yy - 1900; // year starts from 1900
   time_t epoch = mktime(&usertime);
   timeval tv = { epoch, 0 };
-  timezone tz = { 0, 0 };
-  settimeofday(&tv, &tz);
+  settimeofday(&tv, NULL);
 }
 
 // triggered by callback function when time is set by user or NTP
 void time_is_set() {
   // in CONT stack, unlike ISRs,
   // any function is allowed in this callback
-  Serial.println("Time was set!");
+  Serial.println("time was set!");
   time_was_set = true;
   updateDisplay = true;   // always update display after time change
   updateTimeStruct();
@@ -60,6 +62,7 @@ void time_is_set() {
 
 // configure NTP server and timezone
 void initNTP() {
+  Serial.println("configure NTP server");
   switch (config.timeZone) {
     case 0:
       configTime(TZ_Europe_Berlin, "pool.ntp.org");
