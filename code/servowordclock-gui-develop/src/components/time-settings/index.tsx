@@ -2,6 +2,7 @@ import { h, Component } from "preact";
 import * as style from "./style.css";
 import Button from "preact-material-components/Button";
 import TextField from "preact-material-components/TextField";
+import Select from "preact-material-components/Select";
 import "preact-material-components/Button/style.css";
 import "preact-material-components/TextField/style.css";
 import Constants, { sanitizeTime, sanitizeDate } from "../../Constants";
@@ -12,7 +13,6 @@ import {
     TimeSettingsMode,
     TimeSettingsSettings
 } from "../../domain/SWCClient";
-import Checkbox from "preact-material-components/Checkbox";
 import Radio from "preact-material-components/Radio";
 import FormField from "preact-material-components/FormField";
 import LayoutGrid from "preact-material-components/LayoutGrid";
@@ -57,9 +57,7 @@ class TimeSettings extends Component<Props, State> {
         }
         const content =
             this.state.config.mode == "internet"
-                ? this.renderInternetSettings(
-                    Number(this.state.config.timezone)
-                )
+                ? this.renderInternetSettings()
                 : this.renderCustomSettings();
 
         return (
@@ -98,36 +96,50 @@ class TimeSettings extends Component<Props, State> {
     }
 
     renderInternetSettings(
-        selectedTimezone: number
     ) {
         return (
             <div>
-                <LayoutGrid>
-                    <LayoutGrid.Inner>
-                    {this.state.settings.zone_type.map((t,i) =>
-                        this.renderTimeZones(t,i)
-                    )}
-                    </LayoutGrid.Inner>
-                </LayoutGrid>
+                {this.renderSelect(
+                    "timezone",
+                    "Timezone",
+                    this.state.settings.zone_type
+                )}
             </div >
         );
     }
 
-    renderTimeZones(type: string, index: number) {
+    private renderSelect(
+        fieldName: keyof Config,
+        label: string,
+        options: string[]
+    ) {
         return (
-            <FormField>
-                <Radio
-                    id={`timezone-${index}`}
-                    name="timezone"
-                    checked={Number(this.state.config.timezone) === index}
-                    onChange={e =>
-                        this.setState({
-                            config: { ...this.state.config, timezone: index.toString() }
-                        })
-                    }
-                />
-                <label htmlFor={`timezone-${index}`}>{type}</label>
-            </FormField>
+            <div>
+                <label htmlFor={fieldName}>{label}</label>
+                <div>
+                    <Select
+                        id={fieldName}
+                        hintText={label}
+                        class={style.control}
+                        value={Number(this.state.config[fieldName])}
+                        onChange={e =>
+                            this.setState({
+                                config: {
+                                    ...this.state.config,
+                                    [fieldName]: (e.target as HTMLSelectElement)
+                                        .value
+                                }
+                            })
+                        }
+                    >
+                        {options.map((o, i) => (
+                            <Select.Item key={i} value={i} selected={i===Number(this.state.config[fieldName])}>
+                                {o}
+                            </Select.Item>
+                        ))}
+                    </Select>
+                </div>
+            </div>
         );
     }
 
