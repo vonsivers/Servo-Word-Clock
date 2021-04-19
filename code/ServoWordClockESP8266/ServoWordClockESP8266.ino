@@ -78,6 +78,7 @@ void setup(){
 
   // Serial port for debugging purposes
   Serial.begin(115200);
+  delay(1000);
   
   Serial.println("Booting");
 
