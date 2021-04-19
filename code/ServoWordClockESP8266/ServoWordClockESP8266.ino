@@ -23,9 +23,7 @@
 #include <DNSServer.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>    // https://github.com/me-no-dev/ESPAsyncWebServer
-//#include <WiFiUdp.h>
 #include <LittleFS.h>
-//#include <TimeLib.h>                https://github.com/PaulStoffregen/Time (for manual timesetting via setTime())
 #include <time.h>                   // time() ctime()
 #include <coredecls.h>              // settimeofday_cb()
 #include <sys/time.h>                   // struct timeval
@@ -113,22 +111,22 @@ void setup(){
   EEPROM.begin(512); 
   
   // just for testing clear EEPROM before start -> TO BE REMOVED!
-  ClearConfig();
+  //ClearConfig();
   
-  //CFG_saved = ReadConfig();
+  CFG_saved = ReadConfig();
 
   //  connect to WiFi or start as access point
-  //if (CFG_saved) {
-    //startSTA();
-  //}
-  //else {
+  if (CFG_saved) {
+    startSTA();
+  }
+  else {
     DefaultConfig();
     WriteConfig();
-    //startAP();
-  //}
+    startAP();
+  }
   printConfig();
 
-  startSTA(); // TO BE REMOVED!!
+  //startSTA(); // TO BE REMOVED!!
 
   // start web server 
   startServer();

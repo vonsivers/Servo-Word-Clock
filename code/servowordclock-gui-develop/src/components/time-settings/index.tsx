@@ -4,7 +4,7 @@ import Button from "preact-material-components/Button";
 import TextField from "preact-material-components/TextField";
 import "preact-material-components/Button/style.css";
 import "preact-material-components/TextField/style.css";
-import Constants, { sanitizeTime } from "../../Constants";
+import Constants, { sanitizeTime, sanitizeDate } from "../../Constants";
 import { route } from "preact-router";
 import {
     SWCClient,
@@ -134,6 +134,7 @@ class TimeSettings extends Component<Props, State> {
     renderCustomSettings() {
         return (
             <div>
+                <LayoutGrid>
                 <label htmlFor="ssid">Time</label>
                 <TextField
                     id="time"
@@ -154,7 +155,29 @@ class TimeSettings extends Component<Props, State> {
                     }
                     class={style.full}
                 />
+                </LayoutGrid>
+                <LayoutGrid>
+                <label htmlFor="ssid">Date</label>
+                <TextField
+                    id="date"
+                    label="Date"
+                    type="date"
+                    helperText="dd.mm.yyyy"
+                    value={sanitizeDate(this.state.config.manual_date)}
+                    onChange={e =>
+                        this.setState({
+                            config: {
+                                ...this.state.config,
+                                // eslint-disable-next-line @typescript-eslint/camelcase
+                                manual_date: sanitizeDate((e.target as HTMLInputElement).value)
+                            }
+                        })
+                    }
+                    class={style.full}
+                />
+                </LayoutGrid>
             </div>
+            
         );
     }
 }

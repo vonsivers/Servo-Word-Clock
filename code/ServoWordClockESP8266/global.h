@@ -162,15 +162,15 @@ String  ReadStringFromEEPROM(int beginaddress){
 void DefaultConfig() { 
     config.timeMode = "internet";   
     config.timeZone = 0;
-    config.ssid = "o2-WLAN53"; //"ServoWordClock-" + String(chipID,HEX);       
-    config.password = "9939B86FD984BGM6";
+    config.ssid = "ServoWordClock-" + String(chipID,HEX);       
+    config.password = "";
     config.wcolor = "#ff0000";
     config.bcolor = "#ff0000";
     config.dcolor = "#ff0000";
     config.dcolormode = 0;
     config.wcolormode = 0;
     config.bcolormode = 0;
-    config.brightness = 50;
+    config.brightness = 150;
     config.meffect = 0;
     config.heffect = 0;
     config.clockmode = 0;

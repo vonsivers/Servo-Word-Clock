@@ -46,7 +46,7 @@ class Header extends Component<Props, State> {
                             >
                                 menu
                             </TopAppBar.Icon>
-                            <TopAppBar.Title>Servo Word Clock</TopAppBar.Title>
+                            <TopAppBar.Title>Servo Wordclock</TopAppBar.Title>
                         </TopAppBar.Section>
                     </TopAppBar.Row>
                 </TopAppBar>

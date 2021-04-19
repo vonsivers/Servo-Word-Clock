@@ -1,6 +1,5 @@
 
 Time Settings:
-- Datum bei custom time einfügen
 - Alle Zeitzonen aus JSON File generieren
 
 

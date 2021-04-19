@@ -114,6 +114,7 @@ export interface TimeSettings {
     mode: TimeSettingsMode; // (0 = timezone, 1 = manual)
     timezone: string; // = (0-x) [wenn mode = 0]
     manual_time: string; // = (time)
+    manual_date: string; // = (yyyy-mm-dd)
 }
 export type TimeSettingsMode = "internet" | "custom";
 export interface DisplayEffects {
