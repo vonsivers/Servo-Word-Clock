@@ -88,6 +88,10 @@ export class SWCClient {
         return apiGetParsed("nightmode/settings", this.auth);
     }
 
+    public getTimeSettingsSettings(): Promise<TimeSettingsSettings> {
+        return apiGetParsed("timesettings/settings", this.auth);
+    }
+
     public getWifi(): Promise<Wifi> {
         return apiGetParsed("wifi", this.auth);
     }
@@ -108,7 +112,7 @@ export interface ChangePassword {
 }
 export interface TimeSettings {
     mode: TimeSettingsMode; // (0 = timezone, 1 = manual)
-    timezone: string; // = (0-23) [wenn mode = 0]
+    timezone: string; // = (0-x) [wenn mode = 0]
     use_dst: string; // = (bool)
     manual_time: string; // = (time)
 }
@@ -144,6 +148,9 @@ export interface NightMode {
 }
 export interface NightModeSettings {
     mode_type: string[]; // = (string, string, ....) ohne disabled
+}
+export interface TimeSettingsSettings {
+    zone_type: string[]; // = (string, string, ....)
 }
 export interface WifiSettings {
     [ssid: string]: string[]; // signal-strength, secure

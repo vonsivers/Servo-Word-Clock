@@ -42,7 +42,8 @@ void api_timesettings_get(AsyncWebServerRequest *request) {
    result += "mode\n" + (String) config.timeMode + "\n\n";
    result += "timezone\n" + (String) config.timeZone + "\n\n";
    result += "use_dst\n" + (String) config.isDayLightSaving + "\n\n";
-   result += "manual_time\n" + (String) tm.tm_hour + ":" + (String) tm.tm_min;
+   result += "manual_time\n" + (String) tm.tm_hour + ":" + (String) tm.tm_min + "\n\n";
+   result += "zone_type\nBerlin (DE)\nNew York (USA)\nLos Angeles (USA)\nLondon (UK)\n\n";
 
     Serial.println(result);
   

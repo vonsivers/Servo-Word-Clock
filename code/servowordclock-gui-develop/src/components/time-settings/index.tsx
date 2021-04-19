@@ -9,7 +9,8 @@ import { route } from "preact-router";
 import {
     SWCClient,
     TimeSettings as Config,
-    TimeSettingsMode
+    TimeSettingsMode,
+    TimeSettingsSettings
 } from "../../domain/SWCClient";
 import Checkbox from "preact-material-components/Checkbox";
 import Radio from "preact-material-components/Radio";
@@ -41,10 +42,13 @@ class TimeSettings extends Component<Props, State> {
         this.props.client
             .getTimeSettings()
             .then(config => this.setState({ config }));
+        this.props.client
+            .getTimeSettingsSettings()
+            .then(settings => this.setState({ settings }));
     }
 
     render() {
-        if (!this.state.config) {
+        if (!this.state.config || !this.state.settings) {
             return (
                 <div>
                     <LinearProgress indeterminate />
@@ -54,9 +58,9 @@ class TimeSettings extends Component<Props, State> {
         const content =
             this.state.config.mode == "internet"
                 ? this.renderInternetSettings(
-                      Number(this.state.config.timezone),
-                      this.state.config.use_dst === "1"
-                  )
+                    Number(this.state.config.timezone),
+                    this.state.config.use_dst === "1"
+                )
                 : this.renderCustomSettings();
 
         return (
@@ -102,12 +106,9 @@ class TimeSettings extends Component<Props, State> {
             <div>
                 <LayoutGrid>
                     <LayoutGrid.Inner>
-                        <LayoutGrid.Cell phoneCols={2}>
-                            {this.renderTimeZones(0, selectedTimezone)}
-                        </LayoutGrid.Cell>
-                        <LayoutGrid.Cell phoneCols={2}>
-                            {this.renderTimeZones(1, selectedTimezone)}
-                        </LayoutGrid.Cell>
+                    {this.state.settings.zone_type.map((t,i) =>
+                        this.renderTimeZones(t,i)
+                    )}
                     </LayoutGrid.Inner>
                 </LayoutGrid>
                 <div>
@@ -126,41 +127,30 @@ class TimeSettings extends Component<Props, State> {
                             }
                         />
                         <label htmlFor="daylight-saving">
-                            enable Daylight saving
+                        enable Daylight saving
                         </label>
                     </FormField>
                 </div>
-            </div>
+            </div >
         );
     }
 
-    renderTimeZones(offset: number, selectedTimezone: number) {
-        const result = [];
-        for (let i = 0; i < 12; i++) {
-            const num = i * 2 + offset;
-            result.push(
-                <FormField>
-                    <Radio
-                        id={`timezone-${num}`}
-                        name="timezone"
-                        checked={num === selectedTimezone}
-                        onChange={e =>
-                            this.setState({
-                                config: {
-                                    ...this.state.config,
-                                    timezone: num.toString()
-                                }
-                            })
-                        }
-                    />
-                    <label htmlFor={`timezone-${num}`}>
-                        GTM +{num.toString().padStart(2, "0")}
-                    </label>
-                </FormField>
-            );
-            result.push(<br />);
-        }
-        return result;
+    renderTimeZones(type: string, index: number) {
+        return (
+            <FormField>
+                <Radio
+                    id={`timezone-${index}`}
+                    name="timezone"
+                    checked={Number(this.state.config.timezone) === index}
+                    onChange={e =>
+                        this.setState({
+                            config: { ...this.state.config, timezone: index.toString() }
+                        })
+                    }
+                />
+                <label htmlFor={`timezone-${index}`}>{type}</label>
+            </FormField>
+        );
     }
 
     renderCustomSettings() {
@@ -172,7 +162,6 @@ class TimeSettings extends Component<Props, State> {
                     label="Time"
                     type="time"
                     helperText="hh:mm"
-                    
                     value={sanitizeTime(this.state.config.manual_time)}
                     onChange={e =>
                         this.setState({
@@ -194,6 +183,7 @@ class TimeSettings extends Component<Props, State> {
 
 interface State {
     config?: Config;
+    settings?: TimeSettingsSettings;
 }
 interface Props {
     client: SWCClient;

@@ -25,7 +25,7 @@ class ChangePassword extends Component<Props, State> {
             <div class={style.changePassword}>
                 <h1>Change Password</h1>
                 <div>
-                    <label htmlFor="password">Password</label>
+                    <label htmlFor="password">New password</label>
                     <TextField
                         id="password"
                         label="Password"

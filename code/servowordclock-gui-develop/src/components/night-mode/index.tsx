@@ -50,7 +50,6 @@ class NightMode extends Component<Props, State> {
 
         const content =
             Number(this.state.config.mode) === 0 ? null : this.renderContent();
-            console.log(this.state.config,this.state.settings)
         return (
             <div class={style.nightMode}>
                 <h1>Night Mode</h1>

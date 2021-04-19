@@ -1,17 +1,9 @@
-Wifi Settings:
-- Passwordfeld wird beim tippen zurückgesetzt when wifi refreshed
 
 Time Settings:
-- "GTM"(!) ersetzen durch Städtenamen
 - DST Feld überflüssig
 - Datum bei custom time einfügen
-- Wenn Sekunden bei Time gleich 0 dann ist string hh:mm statt hh:mm:ss
 
-Display Effects:
-- Werte werden bei http post nicht übergeben
 
-Night Mode:
-- Wert für mode wird bei http post nicht übergeben
 
 Other:
 - auf Groß/Kleinschreibung achten
