@@ -58,8 +58,7 @@ class TimeSettings extends Component<Props, State> {
         const content =
             this.state.config.mode == "internet"
                 ? this.renderInternetSettings(
-                    Number(this.state.config.timezone),
-                    this.state.config.use_dst === "1"
+                    Number(this.state.config.timezone)
                 )
                 : this.renderCustomSettings();
 
@@ -99,8 +98,7 @@ class TimeSettings extends Component<Props, State> {
     }
 
     renderInternetSettings(
-        selectedTimezone: number,
-        useDaylightSaving: boolean
+        selectedTimezone: number
     ) {
         return (
             <div>
@@ -111,26 +109,6 @@ class TimeSettings extends Component<Props, State> {
                     )}
                     </LayoutGrid.Inner>
                 </LayoutGrid>
-                <div>
-                    <FormField>
-                        <Checkbox
-                            id="daylight-saving"
-                            checked={useDaylightSaving}
-                            onChange={e =>
-                                this.setState({
-                                    config: {
-                                        ...this.state.config,
-                                        // eslint-disable-next-line @typescript-eslint/camelcase
-                                        use_dst: useDaylightSaving ? "0" : "1"
-                                    }
-                                })
-                            }
-                        />
-                        <label htmlFor="daylight-saving">
-                        enable Daylight saving
-                        </label>
-                    </FormField>
-                </div>
             </div >
         );
     }

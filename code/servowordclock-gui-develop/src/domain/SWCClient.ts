@@ -113,7 +113,6 @@ export interface ChangePassword {
 export interface TimeSettings {
     mode: TimeSettingsMode; // (0 = timezone, 1 = manual)
     timezone: string; // = (0-x) [wenn mode = 0]
-    use_dst: string; // = (bool)
     manual_time: string; // = (time)
 }
 export type TimeSettingsMode = "internet" | "custom";

@@ -8,7 +8,6 @@ void api_timesettings_post(AsyncWebServerRequest *request) {
   
   config.timeMode = request->getParam("mode",true)->value();
   config.timeZone = request->getParam("timezone",true)->value().toInt();
-  config.isDayLightSaving = request->getParam("use_dst",true)->value().toInt() == 1;
   String manual_time = request->getParam("manual_time",true)->value();
 
   // parse string "hh:mm"
@@ -19,13 +18,12 @@ void api_timesettings_post(AsyncWebServerRequest *request) {
   if(config.timeMode == "custom") {
     setTimeUser(Hour,Minute,0,1,1,2000);
   }
-  else {  // configure NTP timezone
+  else {  // configure NTP server and timezone
     initNTP();
   }
 
   Serial.println(config.timeMode);
   Serial.println(config.timeZone);
-  Serial.println(config.isDayLightSaving);
   Serial.println(manual_time);
   
   WriteConfig();
@@ -41,7 +39,6 @@ void api_timesettings_get(AsyncWebServerRequest *request) {
   String result = "";
    result += "mode\n" + (String) config.timeMode + "\n\n";
    result += "timezone\n" + (String) config.timeZone + "\n\n";
-   result += "use_dst\n" + (String) config.isDayLightSaving + "\n\n";
    result += "manual_time\n" + (String) tm.tm_hour + ":" + (String) tm.tm_min + "\n\n";
    result += "zone_type\nBerlin (DE)\nNew York (USA)\nLos Angeles (USA)\nLondon (UK)\n\n";
 

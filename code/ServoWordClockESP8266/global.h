@@ -45,7 +45,6 @@ static Ticker deferred;       // needed to delay ESP restart in api_wifi.h
 #endif
 
 struct strConfig {
-  boolean isDayLightSaving;             // 1 Byte - EEPROM 16
   String timeMode;                      // up to 32 Byte - EEPROM 17 
   uint8_t timeZone;                     // 1 Byte - EEPROM 49
   String ssid;                          // up to 32 Byte - EEPROM 50
@@ -161,7 +160,6 @@ String  ReadStringFromEEPROM(int beginaddress){
 
 
 void DefaultConfig() { 
-    config.isDayLightSaving = false;
     config.timeMode = "internet";   
     config.timeZone = 0;
     config.ssid = "o2-WLAN53"; //"ServoWordClock-" + String(chipID,HEX);       
@@ -195,7 +193,6 @@ void WriteConfig(){
   EEPROM.write(1, 'F');
   EEPROM.write(2, 'G');
 
-  EEPROM.write(16, config.isDayLightSaving);
   WriteStringToEEPROM(17, config.timeMode);
   EEPROM.write(49, config.timeZone); 
   WriteStringToEEPROM(50, config.ssid);
@@ -237,7 +234,6 @@ boolean ReadConfig(){
   if (EEPROM.read(0) == 'C' && EEPROM.read(1) == 'F'  && EEPROM.read(2) == 'G' )
   {
     Serial.println("Configuration Found!");
-    config.isDayLightSaving = EEPROM.read(16);
     config.timeMode = ReadStringFromEEPROM(17);
     config.timeZone = EEPROM.read(49);
     config.ssid = ReadStringFromEEPROM(50);
@@ -278,7 +274,6 @@ void printConfig(){
 
   Serial.println("Printing Config");
   Serial.println("------------------");
-  Serial.printf("DST:%d\n", config.isDayLightSaving);
   Serial.printf("Timemode:%s\n", config.timeMode.c_str());
   Serial.printf("Timezone %d\n", config.timeZone); 
   Serial.printf("SSID:%s\n", config.ssid.c_str());

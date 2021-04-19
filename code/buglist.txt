@@ -1,10 +1,9 @@
 
 Time Settings:
-- DST Feld überflüssig
 - Datum bei custom time einfügen
+- Alle Zeitzonen aus JSON File generieren
 
 
 
 Other:
-- auf Groß/Kleinschreibung achten
 - Zurück Button mit dem man wieder ins Hauptmenü kommt
