@@ -95,7 +95,7 @@ void setup(){
 
 // delete all files in SPIFF -> TO BE REMOVED
 /*
-    //bool formatted = SPIFFS.format();
+    bool formatted1 = SPIFFS.format();
     bool formatted = LittleFS.format();
 
     if(formatted){
@@ -103,7 +103,7 @@ void setup(){
   }else{
     Serial.println("\n\nError formatting");
   }
-*/
+  */
 
   Serial.println("\n\n----Listing files----");
   listAllFiles();
@@ -193,6 +193,7 @@ void setup(){
  
 void loop(){
   ArduinoOTA.handle();
+  dnsServer.processNextRequest();
 
   if  (WIFI_connected != WL_CONNECTED and time_was_set == false) {
     LED_no_wifi();

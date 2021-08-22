@@ -63,12 +63,13 @@ void startAP() {
     Serial.print("Wifi AP IP: "); Serial.println(WiFi.softAPIP());
 
     // allow access via http://servowordclock.local from inside network
-    if (!MDNS.begin("ServoWordClock")) {
+    if (!MDNS.begin("servowordclock")) {
         Serial.println("Error setting up MDNS responder!");
     }
     else {
       Serial.println("mDNS responder started");
     }
+    MDNS.addService("http", "tcp", 80);
     
 }
 
@@ -89,12 +90,13 @@ void startSTA() {
       if(WIFI_connected== WL_CONNECTED ) {
         Serial.print("Wifi IP: "); Serial.println(WiFi.localIP());
         // allow access via http://servowordclock.local from INSIDE network
-        if (!MDNS.begin("ServoWordClock")) {
+        if (!MDNS.begin("servowordclock")) {
           Serial.println("Error setting up MDNS responder!");
         }
         else {
           Serial.println("mDNS responder started");
         }
+        MDNS.addService("http", "tcp", 80);
       }
       else {
         Serial.println("Connection Failed! activating the AP mode...");

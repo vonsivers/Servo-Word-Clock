@@ -167,12 +167,12 @@ void DefaultConfig() {
     config.wcolor = "#ff0000";
     config.bcolor = "#ff0000";
     config.dcolor = "#ff0000";
-    config.dcolormode = 0;
-    config.wcolormode = 0;
-    config.bcolormode = 0;
+    config.dcolormode = 1;
+    config.wcolormode = 1;
+    config.bcolormode = 1;
     config.brightness = 150;
-    config.meffect = 0;
-    config.heffect = 0;
+    config.meffect = 4;
+    config.heffect = 4;
     config.clockmode = 0;
     config.nightmode = 0;
     config.wd_hour_start = 0;

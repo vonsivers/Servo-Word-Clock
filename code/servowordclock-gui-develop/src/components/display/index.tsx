@@ -50,7 +50,7 @@ class Display extends Component<Props, State> {
                 <h1>Display Effects</h1>
                 <div>
                     <label htmlFor="brightness">Brightness</label>
-                    <Slider id="brightness" step={1} value={Number(this.state.config.brightness)} max={255} onChange={e =>{e.detail.value && this.setState({config:{...this.state.config,brightness:e.detail.value}})} } />
+                    <Slider id="brightness" step={1} value={Number(this.state.config.brightness)} min={50} max={255} onChange={e =>{e.detail.value && this.setState({config:{...this.state.config,brightness:e.detail.value}})} } />
                 </div>
                 {this.renderSelect(
                     "effect_hour",
