@@ -2,6 +2,18 @@
 #include <EEPROM.h>
 
 void setup() {
+  // define an EEPROM space of 512 Bytes to store data
+  EEPROM.begin(512);
+
+  if(!LittleFS.begin()){
+    Serial.println("An Error has occurred while mounting LittleFS");
+    return;
+  }
+  if(!SPIFFS.begin()){
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
+  
   // delete all files in SPIFF and littleFS
     bool formatted1 = SPIFFS.format();
     bool formatted = LittleFS.format();
