@@ -71,6 +71,7 @@ void Gen_Time() {
   if(updateDisplay || ((tm.tm_min % 5) == 0 && tm.tm_min > lastmin) || (tm.tm_min == 0 && lastmin == 59)) {
     Serial.printf("Current Time: %d:%d:%d\n", tm.tm_hour,tm.tm_min,tm.tm_sec);
     updateTime();
+    sleepServos(); // disable pwm outputs to reduce humming
     lastmin = tm.tm_min;
     updateDisplay = false;
   }
@@ -79,6 +80,7 @@ void Gen_Time() {
   else if((tm.tm_min > lastmin) || (tm.tm_min == 0 && lastmin == 59)) {
     Serial.printf("Current Time: %d:%d:%d\n", tm.tm_hour,tm.tm_min,tm.tm_sec);
     updateMinutes(0);
+    sleepServos(); // disable pwm outputs to reduce humming
     lastmin = tm.tm_min;  
   }
 

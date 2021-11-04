@@ -163,11 +163,9 @@ void setup(){
   currentMode = config.clockmode;    
   if(currentMode == 0) {
     initMatrix();
+    sleepServos(); // disable pwm outputs to reduce humming
   }
-  // otherwise put servos again to sleep
-  else {
-    sleepServos();
-  }
+
   // initialize servo position variables
   initCurrentPos();
   

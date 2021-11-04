@@ -260,6 +260,22 @@ void sleepServos() {
   pwm10.sleep();
   pwm11.sleep();
   */
+
+  // disable pwm outputs
+  for(int ch=0; ch<16; ch++) {
+   pwm1.setPWM(ch,0,0);
+   pwm2.setPWM(ch,0,0);
+   pwm3.setPWM(ch,0,0);
+   pwm4.setPWM(ch,0,0);
+   pwm5.setPWM(ch,0,0);
+   pwm6.setPWM(ch,0,0);
+   pwm7.setPWM(ch,0,0);
+   pwm8.setPWM(ch,0,0);
+   pwm9.setPWM(ch,0,0);
+   pwm10.setPWM(ch,0,0);
+   pwm11.setPWM(ch,0,0); 
+  }
+  
   
 }
 
@@ -656,7 +672,7 @@ void updateMinutes(uint8_t effect) {
     for (int i=0; i<ndots; ++i) {
       usedLetters[10][i]=1;
     }
-  }
+  }  
   
 }
 
@@ -721,7 +737,6 @@ void updateTime() {
     Serial.println("clock mode switched to silent");
     ServosToFront();
     delay(500);
-    sleepServos();
   }
   // move servos to back and switch off LEDs if mode was changed to off
   else if(config.clockmode==2 && currentMode!=2) {
@@ -730,12 +745,10 @@ void updateTime() {
     FastLED.clear();
     FastLED.show();
     delay(500);
-    sleepServos();
   }
   // initialize servos if mode changed to normal
   else if(config.clockmode==0 && currentMode!=0) {
     Serial.println("clock mode switched to normal");
-    wakeupServos();
   }
 
   // change current clock mode
