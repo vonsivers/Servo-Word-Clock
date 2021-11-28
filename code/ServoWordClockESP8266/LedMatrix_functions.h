@@ -106,17 +106,17 @@ uint8_t clockArm5[][2] = { {6,5}, {7,5}, {8,5} };
 uint8_t clockArm6[][2] = { {6,4}, {7,3} };
 
 // setup servo drivers
-Adafruit_PWMServoDriver pwm1 = Adafruit_PWMServoDriver(&Wire, 0x40);
-Adafruit_PWMServoDriver pwm2 = Adafruit_PWMServoDriver(&Wire, 0x41);
-Adafruit_PWMServoDriver pwm3 = Adafruit_PWMServoDriver(&Wire, 0x42);
-Adafruit_PWMServoDriver pwm4 = Adafruit_PWMServoDriver(&Wire, 0x43);
-Adafruit_PWMServoDriver pwm5 = Adafruit_PWMServoDriver(&Wire, 0x44);
-Adafruit_PWMServoDriver pwm6 = Adafruit_PWMServoDriver(&Wire, 0x45);
-Adafruit_PWMServoDriver pwm7 = Adafruit_PWMServoDriver(&Wire, 0x46);
-Adafruit_PWMServoDriver pwm8 = Adafruit_PWMServoDriver(&Wire, 0x47);
-Adafruit_PWMServoDriver pwm9 = Adafruit_PWMServoDriver(&Wire, 0x48);
-Adafruit_PWMServoDriver pwm10 = Adafruit_PWMServoDriver(&Wire, 0x49);
-Adafruit_PWMServoDriver pwm11 = Adafruit_PWMServoDriver(&Wire, 0x4A);
+Adafruit_PWMServoDriver pwm1 = Adafruit_PWMServoDriver(0x40);
+Adafruit_PWMServoDriver pwm2 = Adafruit_PWMServoDriver(0x41);
+Adafruit_PWMServoDriver pwm3 = Adafruit_PWMServoDriver(0x42);
+Adafruit_PWMServoDriver pwm4 = Adafruit_PWMServoDriver(0x43);
+Adafruit_PWMServoDriver pwm5 = Adafruit_PWMServoDriver(0x44);
+Adafruit_PWMServoDriver pwm6 = Adafruit_PWMServoDriver(0x45);
+Adafruit_PWMServoDriver pwm7 = Adafruit_PWMServoDriver(0x46);
+Adafruit_PWMServoDriver pwm8 = Adafruit_PWMServoDriver(0x47);
+Adafruit_PWMServoDriver pwm9 = Adafruit_PWMServoDriver(0x48);
+Adafruit_PWMServoDriver pwm10 = Adafruit_PWMServoDriver(0x49);
+Adafruit_PWMServoDriver pwm11 = Adafruit_PWMServoDriver(0x4A);
 
 uint8_t hue_b = 0; // color of background LEDs
 uint8_t hue_w = 0; // color of words´

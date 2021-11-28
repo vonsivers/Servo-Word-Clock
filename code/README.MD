@@ -25,6 +25,12 @@ npm run build
 
 - Install ESP8266LittleFS tool
 
+- Install required libraries
+	- https://github.com/me-no-dev/ESPAsyncTCP
+	- https://github.com/me-no-dev/ESPAsyncWebServer
+	- https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library
+	- https://github.com/FastLED/FastLED
+
 - Upload LittleFS Data using Arduino IDE
 
 - Upload code to ESP using Arduino IDE
