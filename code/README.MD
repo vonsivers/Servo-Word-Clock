@@ -21,7 +21,7 @@ npm run build
 
 - Install Arduino IDE
 
-- Install ESP8266 library
+- Install ESP8266 addon
 
 - Install ESP8266LittleFS tool
 
@@ -31,9 +31,13 @@ npm run build
 	- https://github.com/adafruit/Adafruit-PWM-Servo-Driver-Library
 	- https://github.com/FastLED/FastLED
 
+- in Arduino IDE select Tools -> Boards -> ESP8266 Boards -> Node MCU 1.0 (ESP-12E)
+
 - Upload LittleFS Data using Arduino IDE
 
 - Upload code to ESP using Arduino IDE
+
+- Once code has been uploaded following updates can be done via Wifi (OTA) with password "ServoWordClockOTA"
 
 ## Code Manual
 

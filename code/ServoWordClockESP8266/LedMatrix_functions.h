@@ -38,7 +38,7 @@ CRGB leds[NUM_LEDS];
 
 // min/max position of servos
 const uint16_t SERVOMIN = 400;
-const uint16_t SERVOMAX = 800;
+const uint16_t SERVOMAX = 750;
 
 // definition of words (row,column), rows and columns start counting from 0 in upper left corner
 //

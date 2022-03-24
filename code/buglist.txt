@@ -1,9 +1,0 @@
-
-Time Settings:
-- Alle Zeitzonen aus JSON File generieren
-
-
-
-Other:
-- Zurück Button mit dem man wieder ins Hauptmenü kommt
-- DNS auf Android zum laufen bringen
