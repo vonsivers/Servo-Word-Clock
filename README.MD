@@ -31,6 +31,10 @@ wordclock_mainPCB was ordered as bare PCB from aisler.net
 
 
 ## Links
+[demo video on YouTube](https://youtu.be/Euf8V2k0oOI)
+
 [Hackaday.io project link](https://hackaday.io/project/166546-servo-controlled-word-clock-v2)
+
+[Instructables project link](https://www.instructables.com/Servo-Wordclock-V2/)
 
 [Version 1 Instructables project link](https://www.instructables.com/Word-Clock-Controlled-by-114-Servos/)
